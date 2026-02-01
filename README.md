@@ -10,7 +10,7 @@ A CapacitorJS + Vite mobile application for real-time monitoring and control of 
 [![Vite](https://img.shields.io/badge/Vite-5.4-646CFF.svg)](https://vitejs.dev/)
 [![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg)](https://www.android.com/)
 
-[Features](#-features) • [Getting Started](#-getting-started) • [Build Instructions](#-build-instructions)
+[Features](#-features) • [Screenshots](#-screenshots) • [Getting Started](#-getting-started) • [Build Instructions](#-build-instructions)
 
 </div>
 
@@ -64,6 +64,13 @@ A CapacitorJS + Vite mobile application for real-time monitoring and control of 
 - Responsive layout optimized for mobile
 - Visual feedback for all actions
 - Color-coded status indicators
+
+## 📸 Screenshots
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/d2ac44f1-5b65-4a11-8e49-158ed1814fe7" alt="App Screenshot 1" width="300"/>
+  <img src="https://github.com/user-attachments/assets/abc1e9df-11ee-4d1a-af56-76bc797b3994" alt="App Screenshot 2" width="300"/>
+</div>
 
 ## 🛠️ Tech Stack
 
