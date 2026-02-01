@@ -1,0 +1,14 @@
+{
+  "appId": "smart.home",
+  "appName": "Smart Home",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "launchShowDuration": 0,
+      "backgroundColor": "#ffffff",
+      "androidScaleType": "CENTER",
+      "androidSplashResourceName": "splash"
+    }
+  }
+}

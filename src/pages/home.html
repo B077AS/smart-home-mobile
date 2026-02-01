@@ -1,0 +1,224 @@
+<div class="home-wrapper">
+  <div class="header">
+    <div class="header-content">
+      <div class="header-title" id="header-title">
+        <h1>Smart Home</h1>
+      </div>
+      <button class="logout-btn" id="logout-btn">
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="main-content" id="main-content">
+    <div id="message-container"></div>
+
+    <div class="devices-grid">
+      <!-- Connection Status Card -->
+      <div class="device-card connection-card">
+        <div class="card-header">
+          <h3 class="card-title" id="connection-title">
+            <span>Live Connection</span>
+          </h3>
+          <div class="card-header-actions">
+            <span class="status-badge" id="ws-status-indicator">
+              <span class="status-dot"></span>
+              <span>Connecting...</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="device-card connection-card">
+        <div class="card-header">
+          <h3 class="card-title" id="mqtt-title">
+            <span>MQTT Broker</span>
+          </h3>
+          <div class="card-header-actions">
+            <span class="status-badge" id="mqtt-status-indicator">
+              <span class="status-dot"></span>
+              <span>Checking...</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Garage Door Card -->
+      <div class="device-card garage-card">
+        <div class="card-header">
+          <h3 class="card-title" id="garage-title">
+            <span>Garage Door</span>
+          </h3>
+          <div class="card-header-actions">
+            <span class="status-badge status-checking" id="status-indicator">
+              <span class="status-dot"></span>
+            </span>
+            <button class="refresh-btn" id="refresh-btn" title="Refresh status"></button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Door Status Display -->
+          <div class="door-status-wrapper">
+            <div class="door-status-main">
+              <span class="door-status-label" id="door-status-label">Status</span>
+              <div class="door-position-label" id="door-position-label">Unknown</div>
+            </div>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-bar" id="door-progress-bar"></div>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="door-actions">
+            <button class="btn-door-control" id="open-btn" disabled>
+              <span>Open Door</span>
+            </button>
+            <button class="btn-door-control" id="close-btn" disabled>
+              <span>Close Door</span>
+            </button>
+          </div>
+
+          <div class="secondary-actions">
+            <button class="btn-trigger" id="garage-trigger-btn" disabled>
+              <span>Manual Trigger</span>
+            </button>
+            <button class="btn-reset" id="reset-btn" disabled>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Smart Plug Card -->
+      <div class="device-card">
+        <div class="card-header">
+          <h3 class="card-title" id="plug-title">
+            <span>Smart Plug</span>
+          </h3>
+          <div class="card-header-actions">
+            <span class="status-badge" id="plug-status-indicator">
+              <span class="status-dot"></span>
+              <span>Unknown</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="plug-info">
+            <div class="info-row">
+              <span class="info-label">State</span>
+              <span class="info-value" id="plug-state-value">Unknown</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Power</span>
+              <span class="info-value" id="plug-power-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Voltage</span>
+              <span class="info-value" id="plug-voltage-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Current</span>
+              <span class="info-value" id="plug-current-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Energy</span>
+              <span class="info-value" id="plug-energy-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Temperature</span>
+              <span class="info-value" id="plug-temperature-value">--</span>
+            </div>
+          </div>
+
+          <button class="btn-plug-control" id="plug-on-btn" disabled>
+            <span>Turn On</span>
+          </button>
+          <button class="btn-plug-control" id="plug-off-btn" disabled>
+            <span>Turn Off</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tilt Sensor Card -->
+      <div class="device-card sensor-card">
+        <div class="card-header">
+          <h3 class="card-title" id="tilt-sensor-title">
+            <span>Tilt Sensor</span>
+          </h3>
+          <div class="card-header-actions">
+            <div class="battery-indicator" id="tilt-battery">
+              <span class="battery-text">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="sensor-info">
+            <div class="info-row">
+              <span class="info-label">State</span>
+              <span class="info-value" id="tilt-contact-value">Unknown</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Battery Level</span>
+              <span class="info-value" id="tilt-battery-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Battery Low</span>
+              <span class="info-value" id="tilt-battery-low-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Link Quality</span>
+              <span class="info-value" id="tilt-linkquality-value">--</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vibration Sensor Card -->
+      <div class="device-card sensor-card">
+        <div class="card-header">
+          <h3 class="card-title" id="vibration-sensor-title">
+            <span>Vibration Sensor</span>
+          </h3>
+          <div class="card-header-actions">
+            <div class="battery-indicator" id="vibration-battery">
+              <span class="battery-text">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="sensor-info">
+            <div class="info-row">
+              <span class="info-label">Vibration</span>
+              <span class="info-value" id="vibration-value">No</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Battery Level</span>
+              <span class="info-value" id="vibration-battery-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Temperature</span>
+              <span class="info-value" id="vibration-temperature-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Angle</span>
+              <span class="info-value" id="vibration-angle-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Voltage</span>
+              <span class="info-value" id="vibration-voltage-value">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Link Quality</span>
+              <span class="info-value" id="vibration-linkquality-value">--</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,748 @@
+/* Home Page Wrapper */
+.home-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  box-shadow: 0 3px 0 0 var(--primary-color), 0 5px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+}
+
+.header-title svg {
+  margin-right: 10px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.logout-btn svg {
+  margin-right: 6px;
+}
+
+.logout-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(0.98);
+}
+
+/* Main Content */
+.main-content {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+/* Message Container */
+#message-container {
+  margin-bottom: 16px;
+}
+
+#message-container .success-message,
+#message-container .error-message {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#message-container .success-message svg,
+#message-container .error-message svg {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Devices Grid */
+.devices-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.devices-grid > * + * {
+  margin-top: 16px;
+}
+
+/* Device Cards */
+.device-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--divider);
+  transition: all 0.2s ease;
+}
+
+.device-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: transparent;
+  border-radius: 10px;
+  border: 1px solid var(--divider);
+}
+
+/* Connection Card */
+.connection-card .card-header {
+  border: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.device-card .card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.device-card .card-title svg {
+  margin-right: 10px;
+  color: var(--primary-color);
+  width: 20px;
+  height: 20px;
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.card-header-actions > * + * {
+  margin-left: 8px;
+}
+
+.device-card .card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.device-card .card-body > * + * {
+  margin-top: 12px;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.status-online {
+  background: rgba(76, 175, 80, 0.15);
+  color: var(--success-color);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-offline {
+  background: rgba(244, 67, 54, 0.15);
+  color: var(--error-color);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.status-checking {
+  background: rgba(25, 118, 210, 0.15);
+  color: var(--primary-color);
+  border: 1px solid rgba(25, 118, 210, 0.3);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s ease-in-out infinite;
+  margin-right: 6px;
+}
+
+/* Refresh Button */
+.refresh-btn {
+  background: white;
+  border: 1px solid rgba(25, 118, 210, 0.3);
+  color: var(--primary-color);
+  cursor: pointer;
+  padding: 7px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.refresh-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.refresh-btn:active:not(:disabled) {
+  background: rgba(25, 118, 210, 0.05);
+  transform: scale(0.95);
+}
+
+.refresh-btn:disabled {
+  border-color: var(--divider);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.refresh-btn svg.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Garage Card Specific */
+.garage-card .card-body > * + * {
+  margin-top: 14px;
+}
+
+/* Door Status */
+.door-status-wrapper {
+  padding: 0;
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.03) 0%, rgba(25, 118, 210, 0.08) 100%);
+  border-radius: 12px;
+  border: 2px solid rgba(25, 118, 210, 0.15);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
+  margin-bottom: 4px;
+  width: 100%;
+}
+
+.door-status-wrapper.state-opening {
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.12) 100%);
+  border-color: rgba(25, 118, 210, 0.25);
+}
+
+.door-status-wrapper.state-closing {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.05) 0%, rgba(255, 152, 0, 0.12) 100%);
+  border-color: rgba(255, 152, 0, 0.25);
+}
+
+.door-status-wrapper.state-open {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.12) 100%);
+  border-color: rgba(76, 175, 80, 0.25);
+}
+
+.door-status-wrapper.state-closed {
+  background: linear-gradient(135deg, rgba(144, 164, 174, 0.03) 0%, rgba(144, 164, 174, 0.08) 100%);
+  border-color: rgba(144, 164, 174, 0.15);
+}
+
+.door-status-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 20px 18px;
+  width: 100%;
+}
+
+.door-icon-wrapper {
+  display: none;
+}
+
+.door-status-text {
+  display: contents;
+}
+
+.door-status-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-self: start;
+}
+
+.door-status-label svg {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.door-position-label {
+  font-size: 17px;
+  color: var(--text-primary);
+  font-weight: 700;
+  text-align: right;
+  justify-self: end;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.door-position-label.opening {
+  color: var(--primary-color);
+}
+
+.door-position-label.closing {
+  color: var(--warning-color);
+}
+
+.door-position-label.open {
+  color: var(--success-color);
+}
+
+.door-position-label.closed {
+  color: var(--text-secondary);
+}
+
+/* Progress container */
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  display: none;
+}
+
+.progress-container.active {
+  display: block;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+  box-shadow: 0 0 10px rgba(25, 118, 210, 0.5);
+  position: relative;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Progress container */
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  display: none;
+  margin-top: 12px;
+}
+
+.progress-container.active {
+  display: block;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+  box-shadow: 0 0 10px rgba(25, 118, 210, 0.5);
+  position: relative;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Door Actions */
+.door-actions {
+  display: flex;
+  width: 100%;
+}
+
+.door-actions > * {
+  flex: 1;
+}
+
+.door-actions > * + * {
+  margin-left: 10px;
+}
+
+.btn-door-control {
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  letter-spacing: 0.3px;
+  min-height: 48px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+}
+
+.btn-door-control:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.3);
+}
+
+.btn-door-control:disabled {
+  background: #CFD8DC;
+  color: #90A4AE;
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Secondary Actions */
+.secondary-actions {
+  display: flex;
+  width: 100%;
+}
+
+.secondary-actions > * {
+  flex: 1;
+}
+
+.secondary-actions > * + * {
+  margin-left: 10px;
+}
+
+.btn-trigger {
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid rgba(255, 152, 0, 0.5);
+  color: var(--warning-color);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-trigger svg {
+  margin-right: 5px;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-trigger:active:not(:disabled) {
+  background: rgba(255, 152, 0, 0.05);
+  transform: scale(0.98);
+}
+
+.btn-trigger:disabled {
+  border-color: var(--divider);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn-reset {
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid rgba(244, 67, 54, 0.4);
+  color: var(--error-color);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-reset svg {
+  margin-right: 5px;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-reset:active:not(:disabled) {
+  background: rgba(244, 67, 54, 0.05);
+  transform: scale(0.98);
+}
+
+.btn-reset:disabled {
+  border-color: var(--divider);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Plug Control Buttons */
+.btn-plug-control {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  letter-spacing: 0.3px;
+  min-height: 48px;
+}
+
+#plug-on-btn {
+  background: linear-gradient(135deg, var(--success-color) 0%, #43a047 100%);
+  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+}
+
+#plug-on-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
+}
+
+#plug-on-btn:disabled {
+  background: #C8E6C9;
+  color: #81C784;
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+#plug-off-btn {
+  background: linear-gradient(135deg, var(--error-color) 0%, #e53935 100%);
+}
+
+#plug-off-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+#plug-off-btn:disabled {
+  background: #FFCDD2;
+  color: #EF9A9A;
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Plug Info and Sensor Info */
+.plug-info,
+.sensor-info {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  width: 100%;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 18px 0;
+  width: 100%;
+}
+
+.info-row + .info-row {
+  border-top: 1px solid var(--divider);
+}
+
+.info-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-self: start;
+}
+
+.info-label svg {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+  justify-self: end;
+}
+
+.info-value.on {
+  color: var(--success-color);
+}
+
+.info-value.off {
+  color: var(--text-secondary);
+}
+
+.info-value.warning {
+  color: var(--warning-color);
+}
+
+/* Sensor Cards */
+.sensor-card {
+  background: linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%);
+}
+
+.battery-indicator {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--divider);
+}
+
+.battery-indicator svg {
+  margin-right: 5px;
+  width: 16px;
+  height: 16px;
+}
+
+.battery-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.battery-indicator.high {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.battery-indicator.high .battery-text,
+.battery-indicator.high svg {
+  color: var(--success-color);
+}
+
+.battery-indicator.medium {
+  background: rgba(255, 152, 0, 0.1);
+  border-color: rgba(255, 152, 0, 0.3);
+}
+
+.battery-indicator.medium .battery-text,
+.battery-indicator.medium svg {
+  color: var(--warning-color);
+}
+
+.battery-indicator.low {
+  background: rgba(244, 67, 54, 0.1);
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+.battery-indicator.low .battery-text,
+.battery-indicator.low svg {
+  color: var(--error-color);
+}
+
+/* Connection Card */
+.connection-card {
+  background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%);
+  border: 1px solid rgba(63, 81, 181, 0.2);
+  box-shadow: 0 2px 8px rgba(63, 81, 181, 0.1);
+}
+
+.connection-card .card-header {
+  border-bottom-color: rgba(63, 81, 181, 0.2);
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
