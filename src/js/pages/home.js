@@ -120,6 +120,10 @@ export class HomePage {
       this.updateConnectionStatus();
     });
 
+    this.wsService.setOnConnectedCallback(() => {
+      this.fetchAllDeviceStates();
+    });
+
     this.wsService.connect();
   }
 
@@ -129,6 +133,27 @@ export class HomePage {
       this.wsService.disconnect();
     }
     this.initializeWebSocket();
+  }
+
+  async fetchAllDeviceStates() {
+    try {
+      const data = await this.apiService.getAllDevicesWithStatus(this.authService.getAccessToken());
+
+      if (data.garageStatus) {
+        this.handleGarageStatusUpdate(data.garageStatus);
+      }
+      if (data.tiltSensor && Object.keys(data.tiltSensor).length > 0) {
+        this.handleSensorUpdate("tilt", data.tiltSensor);
+      }
+      if (data.vibrationSensor && Object.keys(data.vibrationSensor).length > 0) {
+        this.handleSensorUpdate("vibration", data.vibrationSensor);
+      }
+      if (data.plug && Object.keys(data.plug).length > 0) {
+        this.handlePlugUpdate(data.plug);
+      }
+    } catch (error) {
+      console.warn("HomePage: Failed to fetch initial device states", error);
+    }
   }
 
   updateConnectionStatus() {
@@ -497,6 +522,7 @@ export class HomePage {
         triggered = true;
         isPulling = false;
         this.checkGarageStatus();
+        this.fetchAllDeviceStates();
       }
     });
 

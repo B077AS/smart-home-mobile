@@ -191,4 +191,29 @@ export class ApiService {
       throw error;
     }
   }
+
+  async getAllDevicesWithStatus(accessToken) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/all-with-status`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to get device states");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API: Get all devices error:", error);
+      throw error;
+    }
+  }
 }

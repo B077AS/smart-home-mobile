@@ -11,6 +11,7 @@ export class WebSocketService {
     this.reconnectDelay = 3000;
     this.isIntentionallyClosed = false;
     this.onConnectionChange = null;
+    this.onConnectedCallback = null;
     this.tokenRefreshAttempted = false;
   }
 
@@ -81,6 +82,11 @@ export class WebSocketService {
       }
 
       this.subscribeToTopics();
+
+      if (this.onConnectedCallback) {
+        this.onConnectedCallback();
+      }
+
       return;
     }
 
@@ -184,5 +190,9 @@ export class WebSocketService {
 
   setConnectionChangeCallback(callback) {
     this.onConnectionChange = callback;
+  }
+
+  setOnConnectedCallback(callback) {
+    this.onConnectedCallback = callback;
   }
 }
