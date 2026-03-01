@@ -68,8 +68,18 @@ A CapacitorJS + Vite mobile application for real-time monitoring and control of 
 ## 📸 Screenshots
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/d2ac44f1-5b65-4a11-8e49-158ed1814fe7" alt="App Screenshot 1" width="300"/>
-  <img src="https://github.com/user-attachments/assets/abc1e9df-11ee-4d1a-af56-76bc797b3994" alt="App Screenshot 2" width="300"/>
+  <table>
+    <tr>
+      <th>Home</th>
+      <th>Sensors</th>
+      <th>Theme Selection</th>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://github.com/user-attachments/assets/d06aa1d5-be60-447e-ae3b-de9267683754" alt="Home Screen" width="200"/></td>
+      <td align="center"><img src="https://github.com/user-attachments/assets/a186f80d-669c-462b-9ddf-c45bbf7e10bc" alt="Sensors" width="200"/></td>
+      <td align="center"><img src="https://github.com/user-attachments/assets/5a3b1136-b5eb-4fd3-a86c-0c099ea546c0" alt="Theme Selection" width="200"/></td>
+    </tr>
+  </table>
 </div>
 
 ## 🛠️ Tech Stack
