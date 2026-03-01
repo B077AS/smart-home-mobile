@@ -1,6 +1,6 @@
-import { createElement, Home, LogOut, Loader2, CheckCircle2, AlertCircle, RefreshCw, DoorClosed, DoorOpen, ArrowUp, ArrowDown, Battery, BatteryCharging, BatteryWarning, Activity, TriangleRight, Plug, Power, PowerOff, Wifi, RotateCcw, Zap, Gauge, Thermometer, Leaf, Signal, Move3d, Maximize2, ArrowUpDown, Router } from "lucide";
 import homeTemplate from "../../pages/home.html?raw";
 import { WebSocketService } from "../websocket.js";
+import { themeManager } from "../theme.js";
 
 export class HomePage {
   constructor(container, authService, apiService, onLogout) {
@@ -22,108 +22,13 @@ export class HomePage {
     this.wsService = null;
   }
 
-  createIcon(iconComponent, size = 24) {
-    return createElement(iconComponent, {
-      width: size,
-      height: size,
-      "stroke-width": 2,
-    });
-  }
-
   render() {
     this.container.innerHTML = homeTemplate;
-
-    const headerTitle = this.container.querySelector("#header-title");
-    headerTitle.insertBefore(this.createIcon(Home, 32), headerTitle.firstChild);
-
-    const logoutBtn = this.container.querySelector("#logout-btn");
-    logoutBtn.insertBefore(this.createIcon(LogOut, 18), logoutBtn.firstChild);
-
-    const garageTitle = this.container.querySelector("#garage-title");
-    garageTitle.insertBefore(this.createIcon(DoorClosed, 24), garageTitle.firstChild);
-
-    const plugTitle = this.container.querySelector("#plug-title");
-    plugTitle.insertBefore(this.createIcon(Plug, 24), plugTitle.firstChild);
-
-    const connectionTitle = this.container.querySelector("#connection-title");
-    connectionTitle.insertBefore(this.createIcon(Wifi, 24), connectionTitle.firstChild);
-
-    const mqttTitle = this.container.querySelector("#mqtt-title");
-    mqttTitle.insertBefore(this.createIcon(Router, 24), mqttTitle.firstChild);
-
-    const refreshBtn = this.container.querySelector("#refresh-btn");
-    refreshBtn.appendChild(this.createIcon(RefreshCw, 20));
-
-    const tiltSensorTitle = this.container.querySelector("#tilt-sensor-title");
-    tiltSensorTitle.insertBefore(this.createIcon(TriangleRight, 20), tiltSensorTitle.firstChild);
-
-    const vibrationSensorTitle = this.container.querySelector("#vibration-sensor-title");
-    vibrationSensorTitle.insertBefore(this.createIcon(Activity, 20), vibrationSensorTitle.firstChild);
-
-    const resetBtn = this.container.querySelector("#reset-btn");
-    resetBtn.insertBefore(this.createIcon(RotateCcw, 16), resetBtn.firstChild);
-
-    const doorStatusLabel = this.container.querySelector("#door-status-label");
-    doorStatusLabel.insertBefore(this.createIcon(Activity, 18), doorStatusLabel.firstChild);
-
-    this.addIconsToInfoLabels();
     this.setupHandlers();
     this.setupPullToRefresh();
     this.checkGarageStatus();
     this.initializeWebSocket();
-  }
-
-  addIconsToInfoLabels() {
-    // Plug info icons
-    const plugStateLabel = this.container.querySelector("#plug-state-value").previousElementSibling;
-    plugStateLabel.insertBefore(this.createIcon(Power, 18), plugStateLabel.firstChild);
-
-    const plugPowerLabel = this.container.querySelector("#plug-power-value").previousElementSibling;
-    plugPowerLabel.insertBefore(this.createIcon(Zap, 18), plugPowerLabel.firstChild);
-
-    const plugVoltageLabel = this.container.querySelector("#plug-voltage-value").previousElementSibling;
-    plugVoltageLabel.insertBefore(this.createIcon(Gauge, 18), plugVoltageLabel.firstChild);
-
-    const plugCurrentLabel = this.container.querySelector("#plug-current-value").previousElementSibling;
-    plugCurrentLabel.insertBefore(this.createIcon(Activity, 18), plugCurrentLabel.firstChild);
-
-    const plugEnergyLabel = this.container.querySelector("#plug-energy-value").previousElementSibling;
-    plugEnergyLabel.insertBefore(this.createIcon(Leaf, 18), plugEnergyLabel.firstChild);
-
-    const plugTempLabel = this.container.querySelector("#plug-temperature-value").previousElementSibling;
-    plugTempLabel.insertBefore(this.createIcon(Thermometer, 18), plugTempLabel.firstChild);
-
-    // Tilt sensor icons
-    const tiltContactLabel = this.container.querySelector("#tilt-contact-value").previousElementSibling;
-    tiltContactLabel.insertBefore(this.createIcon(ArrowUpDown, 18), tiltContactLabel.firstChild);
-
-    const tiltBatteryLabel = this.container.querySelector("#tilt-battery-value").previousElementSibling;
-    tiltBatteryLabel.insertBefore(this.createIcon(Battery, 18), tiltBatteryLabel.firstChild);
-
-    const tiltBatteryLowLabel = this.container.querySelector("#tilt-battery-low-value").previousElementSibling;
-    tiltBatteryLowLabel.insertBefore(this.createIcon(BatteryWarning, 18), tiltBatteryLowLabel.firstChild);
-
-    const tiltLinkLabel = this.container.querySelector("#tilt-linkquality-value").previousElementSibling;
-    tiltLinkLabel.insertBefore(this.createIcon(Signal, 18), tiltLinkLabel.firstChild);
-
-    // Vibration sensor icons
-    const vibrationLabel = this.container.querySelector("#vibration-value").previousElementSibling;
-    vibrationLabel.insertBefore(this.createIcon(Activity, 18), vibrationLabel.firstChild);
-
-    const vibBatteryLabel = this.container.querySelector("#vibration-battery-value").previousElementSibling;
-    vibBatteryLabel.insertBefore(this.createIcon(Battery, 18), vibBatteryLabel.firstChild);
-
-    const vibTempLabel = this.container.querySelector("#vibration-temperature-value").previousElementSibling;
-    vibTempLabel.insertBefore(this.createIcon(Thermometer, 18), vibTempLabel.firstChild);
-
-    const vibLinkLabel = this.container.querySelector("#vibration-linkquality-value").previousElementSibling;
-    vibLinkLabel.insertBefore(this.createIcon(Signal, 18), vibLinkLabel.firstChild);
-
-    const vibAngleLabel = this.container.querySelector("#vibration-angle-value").previousElementSibling;
-    vibAngleLabel.insertBefore(this.createIcon(Move3d, 18), vibAngleLabel.firstChild);
-
-    const vibVoltageLabel = this.container.querySelector("#vibration-voltage-value").previousElementSibling;
-    vibVoltageLabel.insertBefore(this.createIcon(Gauge, 18), vibVoltageLabel.firstChild);
+    this.syncThemeSheet();
   }
 
   setupHandlers() {
@@ -135,6 +40,9 @@ export class HomePage {
     const resetBtn = this.container.querySelector("#reset-btn");
     const plugOnBtn = this.container.querySelector("#plug-on-btn");
     const plugOffBtn = this.container.querySelector("#plug-off-btn");
+    const themeBtn = this.container.querySelector("#theme-btn");
+    const themeOverlay = this.container.querySelector("#theme-overlay");
+    const themeOptions = this.container.querySelectorAll(".theme-option");
 
     logoutBtn.addEventListener("click", async () => {
       if (this.wsService) {
@@ -154,6 +62,37 @@ export class HomePage {
     resetBtn.addEventListener("click", () => this.handleResetState());
     plugOnBtn.addEventListener("click", () => this.handlePlugControl(true));
     plugOffBtn.addEventListener("click", () => this.handlePlugControl(false));
+
+    themeBtn.addEventListener("click", () => {
+      themeOverlay.classList.add("visible");
+    });
+
+    themeOverlay.addEventListener("click", (e) => {
+      if (e.target === themeOverlay) {
+        themeOverlay.classList.remove("visible");
+      }
+    });
+
+    themeOptions.forEach((opt) => {
+      opt.addEventListener("click", async () => {
+        const color = opt.getAttribute("data-color");
+        await themeManager.setTheme(color);
+        this.syncThemeSheet();
+        setTimeout(() => themeOverlay.classList.remove("visible"), 280);
+      });
+    });
+  }
+
+  syncThemeSheet() {
+    const current = themeManager.getTheme();
+    const options = this.container.querySelectorAll(".theme-option");
+    options.forEach((opt) => {
+      if (opt.getAttribute("data-color") === current) {
+        opt.classList.add("active");
+      } else {
+        opt.classList.remove("active");
+      }
+    });
   }
 
   initializeWebSocket() {
@@ -186,35 +125,37 @@ export class HomePage {
 
   refreshWebSocketConnection() {
     console.log("HomePage: Refreshing WebSocket connection");
-
     if (this.wsService) {
       this.wsService.disconnect();
     }
-
     this.initializeWebSocket();
   }
 
   updateConnectionStatus() {
-    const wsIndicator = this.container.querySelector("#ws-status-indicator");
+    const wsDot = this.container.querySelector("#ws-conn-dot");
 
-    if (this.wsConnected) {
-      wsIndicator.className = "status-badge status-online";
-      wsIndicator.innerHTML = '<span class="status-dot"></span><span>Connected</span>';
-    } else {
-      wsIndicator.className = "status-badge status-offline";
-      wsIndicator.innerHTML = '<span class="status-dot"></span><span>Disconnected</span>';
+    if (wsDot) {
+      wsDot.className = this.wsConnected ? "conn-dot online" : "conn-dot offline";
+    }
+
+    const wsIndicator = this.container.querySelector("#ws-status-indicator");
+    if (wsIndicator) {
+      if (this.wsConnected) {
+        wsIndicator.className = "status-badge status-online hidden";
+        wsIndicator.innerHTML = '<span class="status-dot"></span><span>Connected</span>';
+      } else {
+        wsIndicator.className = "status-badge status-offline hidden";
+        wsIndicator.innerHTML = '<span class="status-dot"></span><span>Disconnected</span>';
+      }
     }
   }
 
   handleGarageStatusUpdate(status) {
-    //console.log("Garage status update:", status);
     this.garageStatus = status;
     this.updateGarageDisplay(status);
   }
 
   handleSensorUpdate(sensorType, data) {
-    //console.log(`${sensorType} sensor update:`, data);
-
     if (sensorType === "tilt") {
       this.tiltSensorData = data;
       this.updateTiltSensorDisplay(data);
@@ -225,30 +166,27 @@ export class HomePage {
   }
 
   handlePlugUpdate(data) {
-    //console.log("Plug update:", data);
     this.plugData = data;
     this.updatePlugDisplay(data);
   }
 
   updateGarageDisplay(status) {
     const positionLabel = this.container.querySelector("#door-position-label");
+    const bigIcon = this.container.querySelector("#door-big-icon");
     const progressBar = this.container.querySelector("#door-progress-bar");
     const progressContainer = this.container.querySelector(".progress-container");
-    const doorStatusWrapper = this.container.querySelector(".door-status-wrapper");
+    const doorStateDisplay = this.container.querySelector("#door-state-display");
     const openBtn = this.container.querySelector("#open-btn");
     const closeBtn = this.container.querySelector("#close-btn");
 
     if (!status || !status.state) return;
 
-    // Parse the state (e.g., "IDLE_CLOSED", "OPENING", "CLOSING", "IDLE_OPEN")
     const state = status.state.toLowerCase();
     const isMoving = state.includes("opening") || state.includes("closing");
 
-    // Determine display text and class
     let displayText = status.state.replace(/_/g, " ");
     let stateClass = state;
 
-    // Simplify state classes
     if (state.includes("closed")) {
       stateClass = "closed";
     } else if (state.includes("open") && !state.includes("opening")) {
@@ -259,9 +197,18 @@ export class HomePage {
       stateClass = "closing";
     }
 
-    doorStatusWrapper.className = `door-status-wrapper state-${stateClass}`;
+    doorStateDisplay.className = `door-state-display door-status-wrapper state-${stateClass}`;
+
+    const iconMap = {
+      open: "mdi-garage-open-variant",
+      opening: "mdi-arrow-up-circle",
+      closing: "mdi-arrow-down-circle",
+      closed: "mdi-garage-variant",
+    };
+    bigIcon.className = `mdi ${iconMap[stateClass] || "mdi-garage-variant"} door-big-icon ${stateClass}`;
+
     positionLabel.textContent = displayText;
-    positionLabel.className = `door-position-label ${stateClass}`;
+    positionLabel.className = `door-state-value door-position-label ${stateClass}`;
 
     if (state.includes("idle_closed") || state === "closed") {
       openBtn.style.display = "flex";
@@ -282,9 +229,7 @@ export class HomePage {
 
     if (isMoving) {
       progressContainer.classList.add("active");
-
-      const progress = status.estimatedProgress || 0;
-      progressBar.style.width = `${progress}%`;
+      progressBar.style.width = `${status.estimatedProgress || 0}%`;
     } else {
       progressContainer.classList.remove("active");
     }
@@ -298,7 +243,6 @@ export class HomePage {
     const linkqualityValue = this.container.querySelector("#tilt-linkquality-value");
 
     if (data.contact !== undefined) {
-      // Contact: false = OPEN (ON), true = CLOSED (OFF)
       const isOpen = !data.contact;
       contactValue.textContent = isOpen ? "Open" : "Closed";
       contactValue.className = isOpen ? "info-value on" : "info-value";
@@ -374,66 +318,37 @@ export class HomePage {
       statusIndicator.className = isOn ? "status-badge status-online" : "status-badge status-offline";
       statusIndicator.innerHTML = `<span class="status-dot"></span><span>${data.state}</span>`;
 
-      if (isOn) {
-        plugOnBtn.style.display = "none";
-        plugOffBtn.style.display = "flex";
-      } else {
-        plugOnBtn.style.display = "flex";
-        plugOffBtn.style.display = "none";
-      }
+      plugOnBtn.style.display = isOn ? "none" : "flex";
+      plugOffBtn.style.display = isOn ? "flex" : "none";
     }
 
-    if (data.power !== undefined) {
-      powerValue.textContent = `${data.power.toFixed(2)} W`;
-    }
-
-    if (data.voltage !== undefined) {
-      voltageValue.textContent = `${data.voltage} V`;
-    }
-
-    if (data.current !== undefined) {
-      currentValue.textContent = `${data.current.toFixed(2)} A`;
-    }
-
-    if (data.energy !== undefined) {
-      energyValue.textContent = `${data.energy.toFixed(2)} kWh`;
-    }
-
-    if (data.device_temperature !== undefined) {
-      temperatureValue.textContent = `${data.device_temperature}°C`;
-    }
+    if (data.power !== undefined) powerValue.textContent = `${data.power.toFixed(2)} W`;
+    if (data.voltage !== undefined) voltageValue.textContent = `${data.voltage} V`;
+    if (data.current !== undefined) currentValue.textContent = `${data.current.toFixed(2)} A`;
+    if (data.energy !== undefined) energyValue.textContent = `${data.energy.toFixed(2)} kWh`;
+    if (data.device_temperature !== undefined) temperatureValue.textContent = `${data.device_temperature}°C`;
   }
 
   updateBatteryIndicator(element, batteryLevel) {
-    element.innerHTML = "";
-
-    let batteryClass = "";
-    let batteryIcon = Battery;
+    let batteryClass, iconClass;
 
     if (batteryLevel >= 70) {
       batteryClass = "high";
-      batteryIcon = BatteryCharging;
+      iconClass = "mdi-battery-charging";
     } else if (batteryLevel >= 30) {
       batteryClass = "medium";
-      batteryIcon = Battery;
+      iconClass = "mdi-battery-50";
     } else {
       batteryClass = "low";
-      batteryIcon = BatteryWarning;
+      iconClass = "mdi-battery-alert";
     }
 
     element.className = `battery-indicator ${batteryClass}`;
-    element.appendChild(this.createIcon(batteryIcon, 16));
-
-    const batteryText = document.createElement("span");
-    batteryText.className = "battery-text";
-    batteryText.textContent = `${batteryLevel}%`;
-    element.appendChild(batteryText);
+    element.innerHTML = `<i class="mdi ${iconClass}"></i><span class="battery-text">${batteryLevel}%</span>`;
   }
 
   async handleGarageTrigger() {
-    if (!this.garageOnline || this.triggerInProgress) {
-      return;
-    }
+    if (!this.garageOnline || this.triggerInProgress) return;
 
     const triggerBtn = this.container.querySelector("#garage-trigger-btn");
     const openBtn = this.container.querySelector("#open-btn");
@@ -485,9 +400,7 @@ export class HomePage {
         this.showErrorMessage(messageContainer, error.message);
       }
     } finally {
-      if (this.garageOnline) {
-        resetBtn.disabled = false;
-      }
+      if (this.garageOnline) resetBtn.disabled = false;
     }
   }
 
@@ -529,7 +442,6 @@ export class HomePage {
 
     if (reLoginSuccess) {
       this.refreshWebSocketConnection();
-
       try {
         await retryAction();
         this.showSuccessMessage(messageContainer, "Action completed successfully!");
@@ -542,48 +454,47 @@ export class HomePage {
   }
 
   showSuccessMessage(container, message) {
-    const successMsg = document.createElement("div");
-    successMsg.className = "success-message";
-    successMsg.appendChild(this.createIcon(CheckCircle2, 20));
-    const span = document.createElement("span");
-    span.textContent = message;
-    successMsg.appendChild(span);
-    container.appendChild(successMsg);
-
+    container.innerHTML = `
+      <div class="success-message">
+        <i class="mdi mdi-check-circle"></i>
+        <span>${message}</span>
+      </div>
+    `;
     setTimeout(() => {
       container.innerHTML = "";
     }, 3000);
   }
 
   showErrorMessage(container, message) {
-    const errorMsg = document.createElement("div");
-    errorMsg.className = "error-message";
-    errorMsg.appendChild(this.createIcon(AlertCircle, 20));
-    const span = document.createElement("span");
-    span.textContent = message;
-    errorMsg.appendChild(span);
-    container.appendChild(errorMsg);
+    container.innerHTML = `
+      <div class="error-message">
+        <i class="mdi mdi-alert-circle"></i>
+        <span>${message}</span>
+      </div>
+    `;
   }
 
   setupPullToRefresh() {
     const mainContent = this.container.querySelector("#main-content");
     let startY = 0;
     let isPulling = false;
+    let triggered = false;
 
     mainContent.addEventListener("touchstart", (e) => {
       if (mainContent.scrollTop === 0) {
         startY = e.touches[0].pageY;
         isPulling = true;
+        triggered = false;
       }
     });
 
     mainContent.addEventListener("touchmove", (e) => {
       if (!isPulling) return;
-
       const currentY = e.touches[0].pageY;
-      const pullDistance = currentY - startY;
+      const delta = currentY - startY;
 
-      if (pullDistance > 80 && mainContent.scrollTop === 0) {
+      if (delta > 80 && mainContent.scrollTop === 0 && !triggered) {
+        triggered = true;
         isPulling = false;
         this.checkGarageStatus();
       }
@@ -608,17 +519,11 @@ export class HomePage {
     const refreshBtn = this.container.querySelector("#refresh-btn");
 
     statusIndicator.className = "status-badge status-checking";
-    statusIndicator.innerHTML = "";
-    const spinner = this.createIcon(Loader2, 16);
-    spinner.classList.add("spin");
-    statusIndicator.appendChild(spinner);
+    statusIndicator.innerHTML = '<i class="mdi mdi-loading spin"></i>';
 
     if (refreshBtn) {
       refreshBtn.disabled = true;
-      const refreshIcon = refreshBtn.querySelector("svg");
-      if (refreshIcon) {
-        refreshIcon.classList.add("spin");
-      }
+      refreshBtn.querySelector("i").classList.add("spin");
     }
 
     try {
@@ -633,9 +538,7 @@ export class HomePage {
           this.onLogout();
           return;
         }
-
         this.refreshWebSocketConnection();
-
         this.statusCheckInProgress = false;
         await this.checkGarageStatus();
         return;
@@ -646,32 +549,36 @@ export class HomePage {
       this.statusCheckInProgress = false;
       if (refreshBtn) {
         refreshBtn.disabled = false;
-        const refreshIcon = refreshBtn.querySelector("svg");
-        if (refreshIcon) {
-          refreshIcon.classList.remove("spin");
-        }
+        refreshBtn.querySelector("i").classList.remove("spin");
       }
     }
   }
 
   async checkMqttStatus() {
+    const mqttDot = this.container.querySelector("#mqtt-conn-dot");
     const mqttIndicator = this.container.querySelector("#mqtt-status-indicator");
-
-    if (!mqttIndicator) return;
 
     try {
       const mqttStatus = await this.apiService.getMqttStatus(this.authService.getAccessToken());
-
       if (mqttStatus.connected) {
-        mqttIndicator.className = "status-badge status-online";
-        mqttIndicator.innerHTML = '<span class="status-dot"></span><span>Connected</span>';
+        if (mqttDot) mqttDot.className = "conn-dot online";
+        if (mqttIndicator) {
+          mqttIndicator.className = "status-badge status-online hidden";
+          mqttIndicator.innerHTML = '<span class="status-dot"></span><span>Connected</span>';
+        }
       } else {
-        mqttIndicator.className = "status-badge status-offline";
-        mqttIndicator.innerHTML = '<span class="status-dot"></span><span>Disconnected</span>';
+        if (mqttDot) mqttDot.className = "conn-dot offline";
+        if (mqttIndicator) {
+          mqttIndicator.className = "status-badge status-offline hidden";
+          mqttIndicator.innerHTML = '<span class="status-dot"></span><span>Disconnected</span>';
+        }
       }
     } catch (error) {
-      mqttIndicator.className = "status-badge status-offline";
-      mqttIndicator.innerHTML = '<span class="status-dot"></span><span>Error</span>';
+      if (mqttDot) mqttDot.className = "conn-dot offline";
+      if (mqttIndicator) {
+        mqttIndicator.className = "status-badge status-offline hidden";
+        mqttIndicator.innerHTML = '<span class="status-dot"></span><span>Error</span>';
+      }
     }
   }
 
@@ -679,25 +586,13 @@ export class HomePage {
     this.garageOnline = true;
     statusIndicator.className = "status-badge status-online";
     statusIndicator.innerHTML = '<span class="status-dot"></span><span>Online</span>';
-
-    triggerBtn.disabled = false;
-    openBtn.disabled = false;
-    closeBtn.disabled = false;
-    resetBtn.disabled = false;
-    plugOnBtn.disabled = false;
-    plugOffBtn.disabled = false;
+    [triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn].forEach((btn) => (btn.disabled = false));
   }
 
   setGarageOffline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn) {
     this.garageOnline = false;
     statusIndicator.className = "status-badge status-offline";
     statusIndicator.innerHTML = '<span class="status-dot"></span><span>Offline</span>';
-
-    triggerBtn.disabled = true;
-    openBtn.disabled = true;
-    closeBtn.disabled = true;
-    resetBtn.disabled = true;
-    plugOnBtn.disabled = true;
-    plugOffBtn.disabled = true;
+    [triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn].forEach((btn) => (btn.disabled = true));
   }
 }

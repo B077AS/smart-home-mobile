@@ -3,10 +3,22 @@ import { AuthService } from "./auth.js";
 import { ApiService } from "./api.js";
 import { LoginPage } from "./pages/login.js";
 import { HomePage } from "./pages/home.js";
+import { themeManager } from "./theme.js";
 
-import "../css/base.css";
+import '@fontsource/outfit/300.css';
+import '@fontsource/outfit/400.css';
+import '@fontsource/outfit/500.css';
+import '@fontsource/outfit/600.css';
+import '@fontsource/outfit/700.css';
+import '@fontsource/outfit/800.css';
+import '@fontsource/outfit/900.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/600.css';
+
+import "../css/global.css";
 import "../css/login.css";
 import "../css/home.css";
+import "../css/icons.css";
 
 class SmartHomeApp {
   constructor() {
@@ -15,12 +27,13 @@ class SmartHomeApp {
     this.appContainer = document.getElementById("app");
 
     this.loginPage = new LoginPage(this.appContainer, this.authService, () => this.showHomePage());
-
     this.homePage = new HomePage(this.appContainer, this.authService, this.apiService, () => this.showLoginPage());
   }
 
   async init() {
+    await themeManager.load();
     await SplashScreen.hide();
+
     const isAuth = await this.authService.checkAuth();
 
     if (isAuth) {

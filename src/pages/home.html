@@ -1,222 +1,255 @@
 <div class="home-wrapper">
   <div class="header">
     <div class="header-content">
-      <div class="header-title" id="header-title">
-        <h1>Smart Home</h1>
+      <div class="header-left">
+        <div class="header-logo">
+          <i class="mdi mdi-home"></i>
+        </div>
+        <div class="header-text">
+          <h1>Smart Home</h1>
+        </div>
       </div>
-      <button class="logout-btn" id="logout-btn">
-        <span>Logout</span>
-      </button>
+      <div class="header-right">
+        <button class="theme-sheet-btn" id="theme-btn" title="Change theme">
+          <i class="mdi mdi-palette"></i>
+        </button>
+        <button class="logout-btn" id="logout-btn">
+          <i class="mdi mdi-logout"></i>
+          <span>Logout</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <div class="main-content" id="main-content">
-    <div id="message-container"></div>
-
-    <div class="devices-grid">
-      <!-- Connection Status Card -->
-      <div class="device-card connection-card">
-        <div class="card-header">
-          <h3 class="card-title" id="connection-title">
-            <span>Live Connection</span>
-          </h3>
-          <div class="card-header-actions">
-            <span class="status-badge" id="ws-status-indicator">
-              <span class="status-dot"></span>
-              <span>Connecting...</span>
-            </span>
+    <div class="scroll-inner">
+      <div id="message-container"></div>
+      <div class="connection-bar">
+        <div class="connection-items">
+          <div class="conn-item">
+            <div class="conn-dot checking" id="ws-conn-dot"></div>
+            <span class="conn-label">WebSocket</span>
+          </div>
+          <div class="conn-divider"></div>
+          <div class="conn-item">
+            <div class="conn-dot checking" id="mqtt-conn-dot"></div>
+            <span class="conn-label">MQTT</span>
           </div>
         </div>
+        <span class="status-badge hidden" id="ws-status-indicator"></span>
+        <span class="status-badge hidden" id="mqtt-status-indicator"></span>
       </div>
 
-      <div class="device-card connection-card">
-        <div class="card-header">
-          <h3 class="card-title" id="mqtt-title">
-            <span>MQTT Broker</span>
-          </h3>
-          <div class="card-header-actions">
-            <span class="status-badge" id="mqtt-status-indicator">
-              <span class="status-dot"></span>
-              <span>Checking...</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Garage Door Card -->
-      <div class="device-card garage-card">
-        <div class="card-header">
-          <h3 class="card-title" id="garage-title">
-            <span>Garage Door</span>
-          </h3>
-          <div class="card-header-actions">
-            <span class="status-badge status-checking" id="status-indicator">
-              <span class="status-dot"></span>
-            </span>
-            <button class="refresh-btn" id="refresh-btn" title="Refresh status"></button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <!-- Door Status Display -->
-          <div class="door-status-wrapper">
-            <div class="door-status-main">
-              <span class="door-status-label" id="door-status-label">Status</span>
-              <div class="door-position-label" id="door-position-label">Unknown</div>
+      <div class="garage-hero">
+        <div class="garage-hero-header">
+          <div class="garage-hero-title">
+            <div class="garage-title-icon">
+              <i class="mdi mdi-garage-open-variant"></i>
+            </div>
+            <div class="garage-title-text">
+              <h2>Garage Door</h2>
+              <p>Main entrance</p>
             </div>
           </div>
-
-          <div class="progress-container">
-            <div class="progress-bar" id="door-progress-bar"></div>
-          </div>
-
-          <!-- Control Buttons -->
-          <div class="door-actions">
-            <button class="btn-door-control" id="open-btn" disabled>
-              <span>Open Door</span>
-            </button>
-            <button class="btn-door-control" id="close-btn" disabled>
-              <span>Close Door</span>
-            </button>
-          </div>
-
-          <div class="secondary-actions">
-            <button class="btn-trigger" id="garage-trigger-btn" disabled>
-              <span>Manual Trigger</span>
-            </button>
-            <button class="btn-reset" id="reset-btn" disabled>
-              <span>Reset</span>
+          <div class="garage-header-right">
+            <span class="status-badge status-checking" id="status-indicator">
+              <span class="status-dot"></span>
+              <span>Checking</span>
+            </span>
+            <button class="refresh-btn" id="refresh-btn" title="Refresh">
+              <i class="mdi mdi-refresh"></i>
             </button>
           </div>
         </div>
+
+        <div class="door-state-display door-status-wrapper" id="door-state-display">
+          <i class="mdi mdi-garage-variant door-big-icon closed" id="door-big-icon"></i>
+          <div class="door-state-value closed door-position-label" id="door-position-label">Unknown</div>
+          <div class="progress-container">
+            <div class="progress-bar" id="door-progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="door-actions">
+          <button class="btn-door-control" id="open-btn" disabled>
+            <i class="mdi mdi-arrow-up-circle"></i>
+            <span>Open</span>
+          </button>
+          <button class="btn-door-control" id="close-btn" disabled style="display: none">
+            <i class="mdi mdi-arrow-down-circle"></i>
+            <span>Close</span>
+          </button>
+        </div>
+
+        <div class="secondary-actions">
+          <button class="btn-secondary-action btn-trigger" id="garage-trigger-btn" disabled>
+            <i class="mdi mdi-gesture-tap"></i>
+            <span>Manual Trigger</span>
+          </button>
+          <button class="btn-secondary-action btn-reset" id="reset-btn" disabled>
+            <i class="mdi mdi-restore"></i>
+            <span>Reset State</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Smart Plug Card -->
-      <div class="device-card">
-        <div class="card-header">
-          <h3 class="card-title" id="plug-title">
-            <span>Smart Plug</span>
-          </h3>
-          <div class="card-header-actions">
+      <div class="section-label">Devices</div>
+
+      <div class="cards-list">
+        <div class="device-card">
+          <div class="device-card-header">
+            <div class="device-card-title">
+              <div class="device-icon plug-icon">
+                <i class="mdi mdi-power-plug"></i>
+              </div>
+              <div class="device-card-name">Smart Plug</div>
+            </div>
             <span class="status-badge" id="plug-status-indicator">
               <span class="status-dot"></span>
               <span>Unknown</span>
             </span>
           </div>
-        </div>
 
-        <div class="card-body">
-          <div class="plug-info">
+          <div class="device-card-body">
             <div class="info-row">
-              <span class="info-label">State</span>
-              <span class="info-value" id="plug-state-value">Unknown</span>
+              <span class="info-label"><i class="mdi mdi-power"></i><span>State</span></span>
+              <span class="info-value" id="plug-state-value">--</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Power</span>
+              <span class="info-label"><i class="mdi mdi-lightning-bolt"></i><span>Power</span></span>
               <span class="info-value" id="plug-power-value">--</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Voltage</span>
+              <span class="info-label"><i class="mdi mdi-gauge"></i><span>Voltage</span></span>
               <span class="info-value" id="plug-voltage-value">--</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Current</span>
+              <span class="info-label"><i class="mdi mdi-current-ac"></i><span>Current</span></span>
               <span class="info-value" id="plug-current-value">--</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Energy</span>
+              <span class="info-label"><i class="mdi mdi-leaf"></i><span>Energy</span></span>
               <span class="info-value" id="plug-energy-value">--</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Temperature</span>
+              <span class="info-label"><i class="mdi mdi-thermometer"></i><span>Temp</span></span>
               <span class="info-value" id="plug-temperature-value">--</span>
             </div>
           </div>
 
-          <button class="btn-plug-control" id="plug-on-btn" disabled>
-            <span>Turn On</span>
-          </button>
-          <button class="btn-plug-control" id="plug-off-btn" disabled>
-            <span>Turn Off</span>
-          </button>
+          <div class="plug-actions">
+            <button class="btn-plug-control" id="plug-on-btn" disabled>
+              <i class="mdi mdi-power"></i>
+              <span>Turn On</span>
+            </button>
+            <button class="btn-plug-control" id="plug-off-btn" disabled style="display: none">
+              <i class="mdi mdi-cancel"></i>
+              <span>Turn Off</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sensors-row">
+          <div class="device-card sensor-card">
+            <div class="device-card-header">
+              <div class="device-card-title">
+                <div class="device-icon tilt-icon">
+                  <i class="mdi mdi-angle-acute"></i>
+                </div>
+                <div class="device-card-name">Tilt Sensor</div>
+              </div>
+              <div class="battery-indicator" id="tilt-battery">
+                <span class="battery-text">--</span>
+              </div>
+            </div>
+            <div class="device-card-body">
+              <div class="sensor-info-grid">
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-swap-vertical"></i><span>State</span></span>
+                  <span class="info-value" id="tilt-contact-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-battery"></i><span>Battery</span></span>
+                  <span class="info-value" id="tilt-battery-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-battery-alert"></i><span>Low Battery</span></span>
+                  <span class="info-value" id="tilt-battery-low-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-signal"></i><span>Link Quality</span></span>
+                  <span class="info-value" id="tilt-linkquality-value">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="device-card sensor-card">
+            <div class="device-card-header">
+              <div class="device-card-title">
+                <div class="device-icon vibration-icon">
+                  <i class="mdi mdi-vibrate"></i>
+                </div>
+                <div class="device-card-name">Vibration Sensor</div>
+              </div>
+              <div class="battery-indicator" id="vibration-battery">
+                <span class="battery-text">--</span>
+              </div>
+            </div>
+            <div class="device-card-body">
+              <div class="sensor-info-grid">
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-vibrate"></i><span>Active</span></span>
+                  <span class="info-value" id="vibration-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-battery"></i><span>Battery</span></span>
+                  <span class="info-value" id="vibration-battery-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-thermometer"></i><span>Temperature</span></span>
+                  <span class="info-value" id="vibration-temperature-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-angle-acute"></i><span>Angle</span></span>
+                  <span class="info-value" id="vibration-angle-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-gauge"></i><span>Voltage</span></span>
+                  <span class="info-value" id="vibration-voltage-value">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label"><i class="mdi mdi-signal"></i><span>Link Quality</span></span>
+                  <span class="info-value" id="vibration-linkquality-value">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Tilt Sensor Card -->
-      <div class="device-card sensor-card">
-        <div class="card-header">
-          <h3 class="card-title" id="tilt-sensor-title">
-            <span>Tilt Sensor</span>
-          </h3>
-          <div class="card-header-actions">
-            <div class="battery-indicator" id="tilt-battery">
-              <span class="battery-text">--</span>
-            </div>
-          </div>
+  <div class="theme-overlay" id="theme-overlay">
+    <div class="theme-sheet">
+      <div class="theme-sheet-handle"></div>
+      <div class="theme-sheet-title">Accent Color</div>
+      <div class="theme-options">
+        <div class="theme-option active" data-color="blue">
+          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+          <span class="theme-option-label">Blue</span>
         </div>
-
-        <div class="card-body">
-          <div class="sensor-info">
-            <div class="info-row">
-              <span class="info-label">State</span>
-              <span class="info-value" id="tilt-contact-value">Unknown</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Battery Level</span>
-              <span class="info-value" id="tilt-battery-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Battery Low</span>
-              <span class="info-value" id="tilt-battery-low-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Link Quality</span>
-              <span class="info-value" id="tilt-linkquality-value">--</span>
-            </div>
-          </div>
+        <div class="theme-option" data-color="green">
+          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+          <span class="theme-option-label">Green</span>
         </div>
-      </div>
-
-      <!-- Vibration Sensor Card -->
-      <div class="device-card sensor-card">
-        <div class="card-header">
-          <h3 class="card-title" id="vibration-sensor-title">
-            <span>Vibration Sensor</span>
-          </h3>
-          <div class="card-header-actions">
-            <div class="battery-indicator" id="vibration-battery">
-              <span class="battery-text">--</span>
-            </div>
-          </div>
+        <div class="theme-option" data-color="red">
+          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+          <span class="theme-option-label">Red</span>
         </div>
-
-        <div class="card-body">
-          <div class="sensor-info">
-            <div class="info-row">
-              <span class="info-label">Vibration</span>
-              <span class="info-value" id="vibration-value">No</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Battery Level</span>
-              <span class="info-value" id="vibration-battery-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Temperature</span>
-              <span class="info-value" id="vibration-temperature-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Angle</span>
-              <span class="info-value" id="vibration-angle-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Voltage</span>
-              <span class="info-value" id="vibration-voltage-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Link Quality</span>
-              <span class="info-value" id="vibration-linkquality-value">--</span>
-            </div>
-          </div>
+        <div class="theme-option" data-color="purple">
+          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+          <span class="theme-option-label">Purple</span>
         </div>
       </div>
     </div>

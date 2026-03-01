@@ -1,0 +1,172 @@
+/* MaterialDesignIcons.com */
+@font-face {
+  font-family: "Material Design Icons";
+  src: url("../fonts/materialdesignicons-webfont.eot?v=7.4.47");
+  src: url("../fonts/materialdesignicons-webfont.eot?#iefix&v=7.4.47") format("embedded-opentype"), url("../fonts/materialdesignicons-webfont.woff2?v=7.4.47") format("woff2"), url("../fonts/materialdesignicons-webfont.woff?v=7.4.47") format("woff"), url("../fonts/materialdesignicons-webfont.ttf?v=7.4.47") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.mdi:before {
+  display: inline-block;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  font-size: inherit;
+  text-rendering: auto;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mdi-alert-circle::before {
+  content: "\F0028";
+}
+
+.mdi-angle-acute::before {
+  content: "\F0937";
+}
+
+.mdi-arrow-down-circle::before {
+  content: "\F0CDB";
+}
+
+.mdi-arrow-up-circle::before {
+  content: "\F0CE1";
+}
+
+.mdi-battery::before {
+  content: "\F0079";
+}
+
+.mdi-battery-50::before {
+  content: "\F007E";
+}
+
+.mdi-battery-alert::before {
+  content: "\F0083";
+}
+
+.mdi-battery-charging::before {
+  content: "\F0084";
+}
+
+.mdi-cancel::before {
+  content: "\F073A";
+}
+
+.mdi-check::before {
+  content: "\F012C";
+}
+
+.mdi-check-circle::before {
+  content: "\F05E0";
+}
+
+.mdi-current-ac::before {
+  content: "\F1480";
+}
+
+.mdi-eye::before {
+  content: "\F0208";
+}
+
+.mdi-eye-off::before {
+  content: "\F0209";
+}
+
+.mdi-garage-open-variant::before {
+  content: "\F12D4";
+}
+
+.mdi-garage-variant::before {
+  content: "\F12D3";
+}
+
+.mdi-gauge::before {
+  content: "\F029A";
+}
+
+.mdi-gesture-tap::before {
+  content: "\F0741";
+}
+
+.mdi-home::before {
+  content: "\F02DC";
+}
+
+.mdi-leaf::before {
+  content: "\F032A";
+}
+
+.mdi-lightning-bolt::before {
+  content: "\F140B";
+}
+
+.mdi-loading::before {
+  content: "\F0772";
+}
+
+.mdi-login::before {
+  content: "\F0342";
+}
+
+.mdi-logout::before {
+  content: "\F0343";
+}
+
+.mdi-palette::before {
+  content: "\F03D8";
+}
+
+.mdi-power::before {
+  content: "\F0425";
+}
+
+.mdi-power-plug::before {
+  content: "\F06A5";
+}
+
+.mdi-refresh::before {
+  content: "\F0450";
+}
+
+.mdi-restore::before {
+  content: "\F099B";
+}
+
+.mdi-signal::before {
+  content: "\F04A2";
+}
+
+.mdi-swap-vertical::before {
+  content: "\F04E2";
+}
+
+.mdi-thermometer::before {
+  content: "\F050F";
+}
+
+.mdi-vibrate::before {
+  content: "\F0566";
+}
+
+@-webkit-keyframes mdi-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
+@keyframes mdi-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
