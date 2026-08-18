@@ -380,11 +380,11 @@
 .door-actions {
   display: flex;
   margin-bottom: 10px;
+  margin-left: -10px;
   position: relative;
   z-index: 1;
 }
-.door-actions > * { flex: 1; }
-.door-actions > * + * { margin-left: 10px; }
+.door-actions > * { flex: 1; margin-left: 10px; }
 
 .btn-door-control {
   padding: 15px 10px;

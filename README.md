@@ -1,18 +1,23 @@
-<div align="center">
+<h1 align="center">
+  <img src="src/assets/imgs/logo.png" alt="Smart Home Mobile icon" width="80"><br>
+  Smart Home - Mobile App
+</h1>
 
-# 📱 Smart Home - Mobile App
+<p align="center">
+  <b>Android Client for Zigbee Device Management &amp; Home Automation</b><br>
+  A CapacitorJS + Vite mobile application for real-time monitoring and control of your smart home system with Zigbee sensors.
+</p>
 
-**Android Client for Zigbee Device Management & Home Automation**
+<p align="center">
+  <img alt="Capacitor 8.0" src="https://img.shields.io/badge/Capacitor-8.0-blue?logo=capacitor&logoColor=white">
+  <img alt="Vite 5.4" src="https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite&logoColor=white">
+  <img alt="Android" src="https://img.shields.io/badge/Platform-Android-brightgreen?logo=android&logoColor=white">
+  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green?logo=opensourceinitiative&logoColor=white">
+</p>
 
-A CapacitorJS + Vite mobile application for real-time monitoring and control of your smart home system with Zigbee sensors.
-
-[![Capacitor](https://img.shields.io/badge/Capacitor-8.0-blue.svg)](https://capacitorjs.com/)
-[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF.svg)](https://vitejs.dev/)
-[![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg)](https://www.android.com/)
-
-[Features](#-features) • [Screenshots](#-screenshots) • [Getting Started](#-getting-started) • [Build Instructions](#-build-instructions)
-
-</div>
+<p align="center">
+  <a href="#-features">Features</a> • <a href="#-screenshots">Screenshots</a> • <a href="#-getting-started">Getting Started</a> • <a href="#-build-instructions">Build Instructions</a>
+</p>
 
 ---
 

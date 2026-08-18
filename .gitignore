@@ -6,3 +6,4 @@ node_modules/
 .sourcemaps
 dist/
 src/.env
+CLAUDE.md
