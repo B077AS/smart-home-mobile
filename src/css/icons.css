@@ -49,10 +49,6 @@
   content: "\F0084";
 }
 
-.mdi-cancel::before {
-  content: "\F073A";
-}
-
 .mdi-check::before {
   content: "\F012C";
 }
@@ -61,8 +57,20 @@
   content: "\F05E0";
 }
 
+.mdi-chevron-down::before {
+  content: "\F0140";
+}
+
+.mdi-close::before {
+  content: "\F0156";
+}
+
 .mdi-current-ac::before {
   content: "\F1480";
+}
+
+.mdi-dots-vertical::before {
+  content: "\F01D9";
 }
 
 .mdi-eye::before {
@@ -89,10 +97,6 @@
   content: "\F0741";
 }
 
-.mdi-home::before {
-  content: "\F02DC";
-}
-
 .mdi-leaf::before {
   content: "\F032A";
 }
@@ -113,8 +117,8 @@
   content: "\F0343";
 }
 
-.mdi-palette::before {
-  content: "\F03D8";
+.mdi-menu::before {
+  content: "\F035C";
 }
 
 .mdi-power::before {

@@ -75,14 +75,16 @@
 <div align="center">
   <table>
     <tr>
-      <th>Home</th>
-      <th>Sensors</th>
-      <th>Theme Selection</th>
+      <th>Idle</th>
+      <th>Opening</th>
+      <th>Closing</th>
+      <th>Menu</th>
     </tr>
     <tr>
-      <td align="center"><img src="https://github.com/user-attachments/assets/d06aa1d5-be60-447e-ae3b-de9267683754" alt="Home Screen" width="200"/></td>
-      <td align="center"><img src="https://github.com/user-attachments/assets/a186f80d-669c-462b-9ddf-c45bbf7e10bc" alt="Sensors" width="200"/></td>
-      <td align="center"><img src="https://github.com/user-attachments/assets/5a3b1136-b5eb-4fd3-a86c-0c099ea546c0" alt="Theme Selection" width="200"/></td>
+      <td align="center"><img src="docs/screenshots/idle.jpg" alt="Idle" width="200"/></td>
+      <td align="center"><img src="docs/screenshots/opening.jpg" alt="Opening" width="200"/></td>
+      <td align="center"><img src="docs/screenshots/closing.jpg" alt="Closing" width="200"/></td>
+      <td align="center"><img src="docs/screenshots/menu.jpg" alt="Menu" width="200"/></td>
     </tr>
   </table>
 </div>

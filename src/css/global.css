@@ -4,40 +4,39 @@
 }
 
 :root {
-  --accent: #3B82F6;
-  --accent-dark: #1D4ED8;
-  --accent-light: #93C5FD;
-  --accent-glow: rgba(59, 130, 246, 0.25);
-  --accent-subtle: rgba(59, 130, 246, 0.08);
+  /* Accent — vivid indigo (default "blue" theme) */
+  --accent: #4F6BFF;
+  --accent-dark: #3A52D9;
+  --accent-light: #8FA0FF;
+  --accent-subtle: rgba(79, 107, 255, 0.14);
 
-  --bg-base: #0A0A0F;
-  --bg-elevated: #111118;
-  --bg-card: #16161F;
-  --bg-card-hover: #1C1C27;
-  --bg-input: #1E1E2A;
-  --bg-overlay: rgba(0, 0, 0, 0.7);
+  /* Material Graphite — deliberately not pure black; better perceived
+     contrast for elevated cards, less eye strain than a true near-black base */
+  --bg-base: #121212;
+  --bg-elevated: #1A1A1A;
+  --bg-card: #212121;
+  --bg-card-hover: #282828;
+  --bg-input: #1E1E1E;
+  --bg-overlay: rgba(10, 10, 10, 0.82);
 
-  /* Text */
-  --text-primary: #F0F0F8;
-  --text-secondary: #8888A8;
-  --text-tertiary: #55556A;
-  --text-inverse: #0A0A0F;
+  /* Text — true neutral, no warm tint */
+  --text-primary: #EFEFEF;
+  --text-secondary: #9C9C9C;
+  --text-tertiary: #6B6B6B;
+  --text-inverse: #121212;
 
-  /* Status */
+  /* Status — vivid, unambiguous */
   --success: #22C55E;
-  --success-glow: rgba(34, 197, 94, 0.2);
-  --success-subtle: rgba(34, 197, 94, 0.08);
-  --error: #EF4444;
-  --error-glow: rgba(239, 68, 68, 0.2);
-  --error-subtle: rgba(239, 68, 68, 0.08);
-  --warning: #F59E0B;
-  --warning-glow: rgba(245, 158, 11, 0.2);
-  --warning-subtle: rgba(245, 158, 11, 0.08);
+  --success-subtle: rgba(34, 197, 94, 0.14);
+  --error: #F5455C;
+  --error-subtle: rgba(245, 69, 92, 0.14);
+  --warning: #F5A524;
+  --warning-subtle: rgba(245, 165, 36, 0.14);
 
-  /* Borders */
-  --border: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.12);
-  --border-accent: rgba(59, 130, 246, 0.3);
+  /* Borders — hairline, neutral */
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-accent: rgba(79, 107, 255, 0.4);
 
   /* Spacing */
   --sp-xs: 4px;
@@ -49,62 +48,64 @@
 
   /* Radii */
   --r-sm: 6px;
-  --r-md: 12px;
-  --r-lg: 18px;
-  --r-xl: 24px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
   --r-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
-  --shadow-accent: 0 4px 24px var(--accent-glow);
+  /* Shadows — elevation only, never colored/glowing */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.55);
+
+  /* Type */
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
 [data-theme="blue"] {
-  --accent: #3B82F6;
-  --accent-dark: #1D4ED8;
-  --accent-light: #93C5FD;
-  --accent-glow: rgba(59, 130, 246, 0.3);
-  --accent-subtle: rgba(59, 130, 246, 0.08);
-  --border-accent: rgba(59, 130, 246, 0.3);
-  --shadow-accent: 0 4px 24px rgba(59, 130, 246, 0.25);
+  --accent: #4F6BFF;
+  --accent-dark: #3A52D9;
+  --accent-light: #8FA0FF;
+  --accent-subtle: rgba(79, 107, 255, 0.14);
+  --border-accent: rgba(79, 107, 255, 0.4);
 }
 
 [data-theme="green"] {
-  --accent: #10B981;
-  --accent-dark: #059669;
-  --accent-light: #6EE7B7;
-  --accent-glow: rgba(16, 185, 129, 0.3);
-  --accent-subtle: rgba(16, 185, 129, 0.08);
-  --border-accent: rgba(16, 185, 129, 0.3);
-  --shadow-accent: 0 4px 24px rgba(16, 185, 129, 0.25);
+  --accent: #22C55E;
+  --accent-dark: #189248;
+  --accent-light: #74E1A0;
+  --accent-subtle: rgba(34, 197, 94, 0.14);
+  --border-accent: rgba(34, 197, 94, 0.4);
 }
 
 [data-theme="red"] {
-  --accent: #F43F5E;
-  --accent-dark: #BE123C;
-  --accent-light: #FDA4AF;
-  --accent-glow: rgba(244, 63, 94, 0.3);
-  --accent-subtle: rgba(244, 63, 94, 0.08);
-  --border-accent: rgba(244, 63, 94, 0.3);
-  --shadow-accent: 0 4px 24px rgba(244, 63, 94, 0.25);
+  --accent: #F5455C;
+  --accent-dark: #D42B42;
+  --accent-light: #FF8FA0;
+  --accent-subtle: rgba(245, 69, 92, 0.14);
+  --border-accent: rgba(245, 69, 92, 0.4);
 }
 
 [data-theme="purple"] {
   --accent: #A855F7;
-  --accent-dark: #7E22CE;
-  --accent-light: #D8B4FE;
-  --accent-glow: rgba(168, 85, 247, 0.3);
-  --accent-subtle: rgba(168, 85, 247, 0.08);
-  --border-accent: rgba(168, 85, 247, 0.3);
-  --shadow-accent: 0 4px 24px rgba(168, 85, 247, 0.25);
+  --accent-dark: #8A32E8;
+  --accent-light: #CDA1FB;
+  --accent-subtle: rgba(168, 85, 247, 0.14);
+  --border-accent: rgba(168, 85, 247, 0.4);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Outfit', -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
   background: var(--bg-base);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -123,15 +124,15 @@ body {
   padding: var(--sp-md) var(--sp-lg);
   border: none;
   border-radius: var(--r-md);
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
   text-decoration: none;
   outline: none;
-  min-height: 48px;
-  letter-spacing: 0.3px;
+  min-height: 50px;
+  letter-spacing: -0.1px;
 }
 
 .btn:disabled {
@@ -142,17 +143,14 @@ body {
 .btn-primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: var(--shadow-accent);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 28px var(--accent-glow);
 }
 
 .btn-primary:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .input-group {
@@ -161,12 +159,12 @@ body {
 
 .input-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 }
 
 .input-wrapper {
@@ -175,13 +173,13 @@ body {
 
 .input-group input {
   width: 100%;
-  padding: 14px var(--sp-md);
-  border: 1px solid var(--border-strong);
+  padding: 15px var(--sp-md);
+  border: 1px solid transparent;
   border-radius: var(--r-md);
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
-  font-weight: 400;
-  transition: all 0.18s ease;
+  font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   outline: none;
   background: var(--bg-input);
   color: var(--text-primary);
@@ -193,21 +191,21 @@ body {
 
 .input-group input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
 }
 
 .input-icon {
   position: absolute;
-  right: 10px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   padding: 8px;
-  border-radius: var(--r-full);
-  transition: all 0.15s ease;
+  border-radius: var(--r-sm);
+  transition: color 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,17 +213,16 @@ body {
 
 .input-icon:hover {
   color: var(--text-primary);
-  background: var(--border);
 }
 
 .error-message,
 .success-message,
 .info-message {
-  padding: 12px var(--sp-md);
+  padding: 13px var(--sp-md);
   border-radius: var(--r-md);
   margin-bottom: var(--sp-md);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
 }
@@ -239,19 +236,16 @@ body {
 .error-message {
   background: var(--error-subtle);
   color: var(--error);
-  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .success-message {
   background: var(--success-subtle);
   color: var(--success);
-  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .info-message {
   background: var(--accent-subtle);
   color: var(--accent-light);
-  border: 1px solid var(--border-accent);
 }
 
 .hidden {
@@ -272,12 +266,7 @@ body {
   50% { opacity: 0.4; }
 }
 
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(12px); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
 }

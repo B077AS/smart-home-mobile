@@ -3,19 +3,19 @@
     <div class="header-content">
       <div class="header-left">
         <div class="header-logo">
-          <i class="mdi mdi-home"></i>
+          <svg class="icon-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
         </div>
         <div class="header-text">
           <h1>Smart Home</h1>
         </div>
       </div>
       <div class="header-right">
-        <button class="theme-sheet-btn" id="theme-btn" title="Change theme">
-          <i class="mdi mdi-palette"></i>
-        </button>
-        <button class="logout-btn" id="logout-btn">
-          <i class="mdi mdi-logout"></i>
-          <span>Logout</span>
+        <span class="conn-dot checking" id="overall-conn-dot" title="Connection status"></span>
+        <button class="menu-btn" id="menu-btn" title="Menu">
+          <i class="mdi mdi-menu"></i>
         </button>
       </div>
     </div>
@@ -24,234 +24,237 @@
   <div class="main-content" id="main-content">
     <div class="scroll-inner">
       <div id="message-container"></div>
-      <div class="connection-bar">
-        <div class="connection-items">
-          <div class="conn-item">
-            <div class="conn-dot checking" id="ws-conn-dot"></div>
-            <span class="conn-label">WebSocket</span>
-          </div>
-          <div class="conn-divider"></div>
-          <div class="conn-item">
-            <div class="conn-dot checking" id="mqtt-conn-dot"></div>
-            <span class="conn-label">MQTT</span>
-          </div>
-        </div>
-        <span class="status-badge hidden" id="ws-status-indicator"></span>
-        <span class="status-badge hidden" id="mqtt-status-indicator"></span>
-      </div>
 
       <div class="garage-hero">
-        <div class="garage-hero-header">
-          <div class="garage-hero-title">
-            <div class="garage-title-icon">
-              <i class="mdi mdi-garage-open-variant"></i>
-            </div>
-            <div class="garage-title-text">
-              <h2>Garage Door</h2>
-              <p>Main entrance</p>
-            </div>
-          </div>
-          <div class="garage-header-right">
+        <div class="hero-topline">
+          <div class="hero-topline-left">
+            <span class="section-label">Garage Door</span>
             <span class="status-badge status-checking" id="status-indicator">
               <span class="status-dot"></span>
-              <span>Checking</span>
             </span>
-            <button class="refresh-btn" id="refresh-btn" title="Refresh">
-              <i class="mdi mdi-refresh"></i>
+          </div>
+          <div class="hero-options">
+            <button class="refresh-btn" id="hero-options-btn" title="More options">
+              <i class="mdi mdi-dots-vertical"></i>
             </button>
+            <div class="hero-dropdown" id="hero-dropdown">
+              <button class="hero-dropdown-item" id="refresh-btn">
+                <i class="mdi mdi-refresh"></i>
+                <span>Refresh</span>
+              </button>
+              <button class="hero-dropdown-item" id="garage-trigger-btn" disabled>
+                <i class="mdi mdi-gesture-tap"></i>
+                <span>Manual Override</span>
+              </button>
+              <button class="hero-dropdown-item" id="reset-btn" disabled>
+                <i class="mdi mdi-restore"></i>
+                <span>Reset State</span>
+              </button>
+            </div>
           </div>
+          <div class="hero-dropdown-backdrop" id="hero-dropdown-backdrop"></div>
         </div>
 
-        <div class="door-state-display door-status-wrapper" id="door-state-display">
-          <i class="mdi mdi-garage-variant door-big-icon closed" id="door-big-icon"></i>
-          <div class="door-state-value closed door-position-label" id="door-position-label">Unknown</div>
-          <div class="progress-container">
-            <div class="progress-bar" id="door-progress-bar" style="width: 0%"></div>
+        <div class="door-ring-wrap">
+          <svg class="door-ring-svg progress-container" viewBox="0 0 200 200">
+            <circle class="door-ring-track" cx="100" cy="100" r="92"></circle>
+            <circle class="door-ring-progress" id="door-progress-bar" cx="100" cy="100" r="92"></circle>
+          </svg>
+          <button class="door-dial-btn" id="open-btn" disabled aria-label="Open garage door"></button>
+          <button class="door-dial-btn" id="close-btn" disabled style="display: none" aria-label="Close garage door"></button>
+          <div class="door-state-display" id="door-state-display">
+            <i class="mdi mdi-garage-variant door-big-icon closed" id="door-big-icon"></i>
+            <div class="door-state-value closed" id="door-position-label">Unknown</div>
+            <div class="door-tap-hint">Tap to toggle</div>
           </div>
-        </div>
-
-        <div class="door-actions">
-          <button class="btn-door-control" id="open-btn" disabled>
-            <i class="mdi mdi-arrow-up-circle"></i>
-            <span>Open</span>
-          </button>
-          <button class="btn-door-control" id="close-btn" disabled style="display: none">
-            <i class="mdi mdi-arrow-down-circle"></i>
-            <span>Close</span>
-          </button>
-        </div>
-
-        <div class="secondary-actions">
-          <button class="btn-secondary-action btn-trigger" id="garage-trigger-btn" disabled>
-            <i class="mdi mdi-gesture-tap"></i>
-            <span>Manual Trigger</span>
-          </button>
-          <button class="btn-secondary-action btn-reset" id="reset-btn" disabled>
-            <i class="mdi mdi-restore"></i>
-            <span>Reset State</span>
-          </button>
         </div>
       </div>
 
-      <div class="section-label">Devices</div>
+      <div class="section-label devices-label">Devices</div>
 
-      <div class="cards-list">
-        <div class="device-card">
-          <div class="device-card-header">
-            <div class="device-card-title">
+      <div class="device-list">
+        <details class="device-row" open>
+          <summary class="device-row-header">
+            <div class="device-row-title">
               <div class="device-icon plug-icon">
                 <i class="mdi mdi-power-plug"></i>
               </div>
-              <div class="device-card-name">Smart Plug</div>
+              <div class="device-row-name">Smart Plug</div>
             </div>
-            <span class="status-badge" id="plug-status-indicator">
-              <span class="status-dot"></span>
-              <span>Unknown</span>
-            </span>
-          </div>
+            <div class="device-row-header-right">
+              <span class="status-badge" id="plug-status-indicator">
+                <span class="status-dot"></span>
+                <span>Unknown</span>
+              </span>
+              <i class="mdi mdi-chevron-down accordion-chevron"></i>
+            </div>
+          </summary>
 
-          <div class="device-card-body">
-            <div class="info-row">
-              <span class="info-label"><i class="mdi mdi-power"></i><span>State</span></span>
-              <span class="info-value" id="plug-state-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label"><i class="mdi mdi-lightning-bolt"></i><span>Power</span></span>
-              <span class="info-value" id="plug-power-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label"><i class="mdi mdi-gauge"></i><span>Voltage</span></span>
-              <span class="info-value" id="plug-voltage-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label"><i class="mdi mdi-current-ac"></i><span>Current</span></span>
-              <span class="info-value" id="plug-current-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label"><i class="mdi mdi-leaf"></i><span>Energy</span></span>
-              <span class="info-value" id="plug-energy-value">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label"><i class="mdi mdi-thermometer"></i><span>Temp</span></span>
-              <span class="info-value" id="plug-temperature-value">--</span>
-            </div>
-          </div>
-
-          <div class="plug-actions">
-            <button class="btn-plug-control" id="plug-on-btn" disabled>
-              <i class="mdi mdi-power"></i>
-              <span>Turn On</span>
-            </button>
-            <button class="btn-plug-control" id="plug-off-btn" disabled style="display: none">
-              <i class="mdi mdi-cancel"></i>
-              <span>Turn Off</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="sensors-row">
-          <div class="device-card sensor-card">
-            <div class="device-card-header">
-              <div class="device-card-title">
-                <div class="device-icon tilt-icon">
-                  <i class="mdi mdi-angle-acute"></i>
-                </div>
-                <div class="device-card-name">Tilt Sensor</div>
+          <div class="device-row-body">
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-power"></i><span>State</span></span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="plug-state-value" disabled />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                </label>
               </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-lightning-bolt"></i><span>Power</span></span>
+                <span class="info-value" id="plug-power-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-gauge"></i><span>Voltage</span></span>
+                <span class="info-value" id="plug-voltage-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-current-ac"></i><span>Current</span></span>
+                <span class="info-value" id="plug-current-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-leaf"></i><span>Energy</span></span>
+                <span class="info-value" id="plug-energy-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-thermometer"></i><span>Temp</span></span>
+                <span class="info-value" id="plug-temperature-value">--</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="device-row">
+          <summary class="device-row-header">
+            <div class="device-row-title">
+              <div class="device-icon tilt-icon">
+                <i class="mdi mdi-angle-acute"></i>
+              </div>
+              <div class="device-row-name">Tilt Sensor</div>
+            </div>
+            <div class="device-row-header-right">
               <div class="battery-indicator" id="tilt-battery">
                 <span class="battery-text">--</span>
               </div>
+              <i class="mdi mdi-chevron-down accordion-chevron"></i>
             </div>
-            <div class="device-card-body">
-              <div class="sensor-info-grid">
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-swap-vertical"></i><span>State</span></span>
-                  <span class="info-value" id="tilt-contact-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-battery"></i><span>Battery</span></span>
-                  <span class="info-value" id="tilt-battery-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-battery-alert"></i><span>Low Battery</span></span>
-                  <span class="info-value" id="tilt-battery-low-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-signal"></i><span>Link Quality</span></span>
-                  <span class="info-value" id="tilt-linkquality-value">--</span>
-                </div>
+          </summary>
+          <div class="device-row-body">
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-swap-vertical"></i><span>State</span></span>
+                <span class="info-value" id="tilt-contact-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-battery"></i><span>Battery</span></span>
+                <span class="info-value" id="tilt-battery-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-battery-alert"></i><span>Low Battery</span></span>
+                <span class="info-value" id="tilt-battery-low-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-signal"></i><span>Link Quality</span></span>
+                <span class="info-value" id="tilt-linkquality-value">--</span>
               </div>
             </div>
           </div>
+        </details>
 
-          <div class="device-card sensor-card">
-            <div class="device-card-header">
-              <div class="device-card-title">
-                <div class="device-icon vibration-icon">
-                  <i class="mdi mdi-vibrate"></i>
-                </div>
-                <div class="device-card-name">Vibration Sensor</div>
+        <details class="device-row">
+          <summary class="device-row-header">
+            <div class="device-row-title">
+              <div class="device-icon vibration-icon">
+                <i class="mdi mdi-vibrate"></i>
               </div>
+              <div class="device-row-name">Vibration Sensor</div>
+            </div>
+            <div class="device-row-header-right">
               <div class="battery-indicator" id="vibration-battery">
                 <span class="battery-text">--</span>
               </div>
+              <i class="mdi mdi-chevron-down accordion-chevron"></i>
             </div>
-            <div class="device-card-body">
-              <div class="sensor-info-grid">
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-vibrate"></i><span>Active</span></span>
-                  <span class="info-value" id="vibration-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-battery"></i><span>Battery</span></span>
-                  <span class="info-value" id="vibration-battery-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-thermometer"></i><span>Temperature</span></span>
-                  <span class="info-value" id="vibration-temperature-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-angle-acute"></i><span>Angle</span></span>
-                  <span class="info-value" id="vibration-angle-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-gauge"></i><span>Voltage</span></span>
-                  <span class="info-value" id="vibration-voltage-value">--</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label"><i class="mdi mdi-signal"></i><span>Link Quality</span></span>
-                  <span class="info-value" id="vibration-linkquality-value">--</span>
-                </div>
+          </summary>
+          <div class="device-row-body">
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-vibrate"></i><span>Active</span></span>
+                <span class="info-value" id="vibration-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-battery"></i><span>Battery</span></span>
+                <span class="info-value" id="vibration-battery-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-thermometer"></i><span>Temperature</span></span>
+                <span class="info-value" id="vibration-temperature-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-angle-acute"></i><span>Angle</span></span>
+                <span class="info-value" id="vibration-angle-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-gauge"></i><span>Voltage</span></span>
+                <span class="info-value" id="vibration-voltage-value">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="mdi mdi-signal"></i><span>Link Quality</span></span>
+                <span class="info-value" id="vibration-linkquality-value">--</span>
               </div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
     </div>
   </div>
 
-  <div class="theme-overlay" id="theme-overlay">
-    <div class="theme-sheet">
-      <div class="theme-sheet-handle"></div>
-      <div class="theme-sheet-title">Accent Color</div>
-      <div class="theme-options">
-        <div class="theme-option active" data-color="blue">
-          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
-          <span class="theme-option-label">Blue</span>
+  <div class="menu-overlay" id="menu-overlay">
+    <div class="menu-panel">
+      <div class="menu-panel-header">
+        <span>Menu</span>
+        <button class="menu-close-btn" id="menu-close-btn">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-label">Connection</div>
+        <div class="menu-conn-row">
+          <span class="conn-dot checking" id="ws-conn-dot"></span>
+          <span class="menu-conn-label">WebSocket</span>
         </div>
-        <div class="theme-option" data-color="green">
-          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
-          <span class="theme-option-label">Green</span>
-        </div>
-        <div class="theme-option" data-color="red">
-          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
-          <span class="theme-option-label">Red</span>
-        </div>
-        <div class="theme-option" data-color="purple">
-          <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
-          <span class="theme-option-label">Purple</span>
+        <div class="menu-conn-row">
+          <span class="conn-dot checking" id="mqtt-conn-dot"></span>
+          <span class="menu-conn-label">MQTT Broker</span>
         </div>
       </div>
+
+      <div class="menu-section">
+        <div class="menu-section-label">Accent Color</div>
+        <div class="theme-options">
+          <div class="theme-option active" data-color="blue">
+            <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+            <span class="theme-option-label">Blue</span>
+          </div>
+          <div class="theme-option" data-color="green">
+            <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+            <span class="theme-option-label">Green</span>
+          </div>
+          <div class="theme-option" data-color="red">
+            <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+            <span class="theme-option-label">Red</span>
+          </div>
+          <div class="theme-option" data-color="purple">
+            <div class="theme-swatch"><i class="mdi mdi-check"></i></div>
+            <span class="theme-option-label">Purple</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="menu-logout-btn" id="logout-btn">
+        <i class="mdi mdi-logout"></i>
+        <span>Log Out</span>
+      </button>
     </div>
   </div>
 </div>

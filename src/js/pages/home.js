@@ -13,6 +13,7 @@ export class HomePage {
     this.triggerInProgress = false;
     this.statusCheckInProgress = false;
     this.wsConnected = false;
+    this.mqttConnected = null;
 
     this.tiltSensorData = {};
     this.vibrationSensorData = {};
@@ -38,11 +39,14 @@ export class HomePage {
     const openBtn = this.container.querySelector("#open-btn");
     const closeBtn = this.container.querySelector("#close-btn");
     const resetBtn = this.container.querySelector("#reset-btn");
-    const plugOnBtn = this.container.querySelector("#plug-on-btn");
-    const plugOffBtn = this.container.querySelector("#plug-off-btn");
-    const themeBtn = this.container.querySelector("#theme-btn");
-    const themeOverlay = this.container.querySelector("#theme-overlay");
+    const plugToggle = this.container.querySelector("#plug-state-value");
+    const menuBtn = this.container.querySelector("#menu-btn");
+    const menuCloseBtn = this.container.querySelector("#menu-close-btn");
+    const menuOverlay = this.container.querySelector("#menu-overlay");
     const themeOptions = this.container.querySelectorAll(".theme-option");
+    const heroOptionsBtn = this.container.querySelector("#hero-options-btn");
+    const heroDropdown = this.container.querySelector("#hero-dropdown");
+    const heroDropdownBackdrop = this.container.querySelector("#hero-dropdown-backdrop");
 
     logoutBtn.addEventListener("click", async () => {
       if (this.wsService) {
@@ -60,16 +64,19 @@ export class HomePage {
     openBtn.addEventListener("click", () => this.handleGarageTrigger());
     closeBtn.addEventListener("click", () => this.handleGarageTrigger());
     resetBtn.addEventListener("click", () => this.handleResetState());
-    plugOnBtn.addEventListener("click", () => this.handlePlugControl(true));
-    plugOffBtn.addEventListener("click", () => this.handlePlugControl(false));
+    plugToggle.addEventListener("change", () => this.handlePlugControl(plugToggle.checked));
 
-    themeBtn.addEventListener("click", () => {
-      themeOverlay.classList.add("visible");
+    menuBtn.addEventListener("click", () => {
+      menuOverlay.classList.add("visible");
     });
 
-    themeOverlay.addEventListener("click", (e) => {
-      if (e.target === themeOverlay) {
-        themeOverlay.classList.remove("visible");
+    menuCloseBtn.addEventListener("click", () => {
+      menuOverlay.classList.remove("visible");
+    });
+
+    menuOverlay.addEventListener("click", (e) => {
+      if (e.target === menuOverlay) {
+        menuOverlay.classList.remove("visible");
       }
     });
 
@@ -78,8 +85,24 @@ export class HomePage {
         const color = opt.getAttribute("data-color");
         await themeManager.setTheme(color);
         this.syncThemeSheet();
-        setTimeout(() => themeOverlay.classList.remove("visible"), 280);
       });
+    });
+
+    heroOptionsBtn.addEventListener("click", () => {
+      heroDropdown.classList.add("open");
+      heroDropdownBackdrop.classList.add("visible");
+    });
+
+    heroDropdownBackdrop.addEventListener("click", () => {
+      heroDropdown.classList.remove("open");
+      heroDropdownBackdrop.classList.remove("visible");
+    });
+
+    heroDropdown.addEventListener("click", (e) => {
+      if (e.target.closest(".hero-dropdown-item")) {
+        heroDropdown.classList.remove("open");
+        heroDropdownBackdrop.classList.remove("visible");
+      }
     });
   }
 
@@ -173,6 +196,20 @@ export class HomePage {
         wsIndicator.innerHTML = '<span class="status-dot"></span><span>Disconnected</span>';
       }
     }
+
+    this.updateOverallConnDot();
+  }
+
+  updateOverallConnDot() {
+    const dot = this.container.querySelector("#overall-conn-dot");
+    if (!dot) return;
+
+    if (this.mqttConnected === null) {
+      dot.className = "conn-dot checking";
+      return;
+    }
+
+    dot.className = this.wsConnected && this.mqttConnected ? "conn-dot online" : "conn-dot offline";
   }
 
   handleGarageStatusUpdate(status) {
@@ -209,7 +246,13 @@ export class HomePage {
     const state = status.state.toLowerCase();
     const isMoving = state.includes("opening") || state.includes("closing");
 
-    let displayText = status.state.replace(/_/g, " ");
+    const stateTextMap = {
+      IDLE_OPEN: "Open",
+      IDLE_CLOSED: "Closed",
+      STUCK_OPENING: "Stuck",
+      STUCK_CLOSING: "Stuck",
+    };
+    let displayText = stateTextMap[status.state] || status.state.replace(/_/g, " ");
     let stateClass = state;
 
     if (state.includes("closed")) {
@@ -254,7 +297,10 @@ export class HomePage {
 
     if (isMoving) {
       progressContainer.classList.add("active");
-      progressBar.style.width = `${status.estimatedProgress || 0}%`;
+      const progress = status.estimatedProgress || 0;
+      const circumference = 2 * Math.PI * progressBar.r.baseVal.value;
+      progressBar.style.strokeDasharray = `${circumference}`;
+      progressBar.style.strokeDashoffset = `${circumference * (1 - progress / 100)}`;
     } else {
       progressContainer.classList.remove("active");
     }
@@ -332,19 +378,13 @@ export class HomePage {
     const currentValue = this.container.querySelector("#plug-current-value");
     const energyValue = this.container.querySelector("#plug-energy-value");
     const temperatureValue = this.container.querySelector("#plug-temperature-value");
-    const plugOnBtn = this.container.querySelector("#plug-on-btn");
-    const plugOffBtn = this.container.querySelector("#plug-off-btn");
 
     if (data.state !== undefined) {
       const isOn = data.state === "ON";
-      stateValue.textContent = data.state;
-      stateValue.className = isOn ? "info-value on" : "info-value off";
+      stateValue.checked = isOn;
 
       statusIndicator.className = isOn ? "status-badge status-online" : "status-badge status-offline";
       statusIndicator.innerHTML = `<span class="status-dot"></span><span>${data.state}</span>`;
-
-      plugOnBtn.style.display = isOn ? "none" : "flex";
-      plugOffBtn.style.display = isOn ? "flex" : "none";
     }
 
     if (data.power !== undefined) powerValue.textContent = `${data.power.toFixed(2)} W`;
@@ -432,12 +472,10 @@ export class HomePage {
   async handlePlugControl(turnOn) {
     if (!this.garageOnline) return;
 
-    const plugOnBtn = this.container.querySelector("#plug-on-btn");
-    const plugOffBtn = this.container.querySelector("#plug-off-btn");
+    const plugToggle = this.container.querySelector("#plug-state-value");
     const messageContainer = this.container.querySelector("#message-container");
 
-    plugOnBtn.disabled = true;
-    plugOffBtn.disabled = true;
+    plugToggle.disabled = true;
     messageContainer.innerHTML = "";
 
     try {
@@ -449,6 +487,7 @@ export class HomePage {
         this.showSuccessMessage(messageContainer, "Plug turned OFF!");
       }
     } catch (error) {
+      plugToggle.checked = !turnOn;
       if (error.message === "TOKEN_EXPIRED") {
         await this.handleTokenExpiredDuringAction(messageContainer, () => (turnOn ? this.apiService.turnPlugOn(this.authService.getAccessToken()) : this.apiService.turnPlugOff(this.authService.getAccessToken())));
       } else {
@@ -456,8 +495,7 @@ export class HomePage {
       }
     } finally {
       if (this.garageOnline) {
-        plugOnBtn.disabled = false;
-        plugOffBtn.disabled = false;
+        plugToggle.disabled = false;
       }
     }
   }
@@ -540,8 +578,7 @@ export class HomePage {
     const openBtn = this.container.querySelector("#open-btn");
     const closeBtn = this.container.querySelector("#close-btn");
     const resetBtn = this.container.querySelector("#reset-btn");
-    const plugOnBtn = this.container.querySelector("#plug-on-btn");
-    const plugOffBtn = this.container.querySelector("#plug-off-btn");
+    const plugToggle = this.container.querySelector("#plug-state-value");
     const refreshBtn = this.container.querySelector("#refresh-btn");
 
     statusIndicator.className = "status-badge status-checking";
@@ -554,7 +591,7 @@ export class HomePage {
 
     try {
       const status = await this.apiService.getGarageStatus(this.authService.getAccessToken());
-      this.setGarageOnline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn);
+      this.setGarageOnline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugToggle);
       this.handleGarageStatusUpdate(status);
       this.checkMqttStatus();
     } catch (error) {
@@ -569,7 +606,7 @@ export class HomePage {
         await this.checkGarageStatus();
         return;
       } else {
-        this.setGarageOffline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn);
+        this.setGarageOffline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugToggle);
       }
     } finally {
       this.statusCheckInProgress = false;
@@ -586,6 +623,7 @@ export class HomePage {
 
     try {
       const mqttStatus = await this.apiService.getMqttStatus(this.authService.getAccessToken());
+      this.mqttConnected = !!mqttStatus.connected;
       if (mqttStatus.connected) {
         if (mqttDot) mqttDot.className = "conn-dot online";
         if (mqttIndicator) {
@@ -600,25 +638,28 @@ export class HomePage {
         }
       }
     } catch (error) {
+      this.mqttConnected = false;
       if (mqttDot) mqttDot.className = "conn-dot offline";
       if (mqttIndicator) {
         mqttIndicator.className = "status-badge status-offline hidden";
         mqttIndicator.innerHTML = '<span class="status-dot"></span><span>Error</span>';
       }
     }
+
+    this.updateOverallConnDot();
   }
 
-  setGarageOnline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn) {
+  setGarageOnline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugToggle) {
     this.garageOnline = true;
     statusIndicator.className = "status-badge status-online";
-    statusIndicator.innerHTML = '<span class="status-dot"></span><span>Online</span>';
-    [triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn].forEach((btn) => (btn.disabled = false));
+    statusIndicator.innerHTML = '<span class="status-dot"></span>';
+    [triggerBtn, openBtn, closeBtn, resetBtn, plugToggle].forEach((btn) => (btn.disabled = false));
   }
 
-  setGarageOffline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn) {
+  setGarageOffline(statusIndicator, triggerBtn, openBtn, closeBtn, resetBtn, plugToggle) {
     this.garageOnline = false;
     statusIndicator.className = "status-badge status-offline";
-    statusIndicator.innerHTML = '<span class="status-dot"></span><span>Offline</span>';
-    [triggerBtn, openBtn, closeBtn, resetBtn, plugOnBtn, plugOffBtn].forEach((btn) => (btn.disabled = true));
+    statusIndicator.innerHTML = '<span class="status-dot"></span>';
+    [triggerBtn, openBtn, closeBtn, resetBtn, plugToggle].forEach((btn) => (btn.disabled = true));
   }
 }

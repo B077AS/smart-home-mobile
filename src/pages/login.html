@@ -1,36 +1,35 @@
 <div class="login-wrapper">
   <div class="login-container">
-    <div class="login-card">
-      <div class="logo">
-        <div class="logo-icon" id="logo-icon">
-          <i class="mdi mdi-home"></i>
-        </div>
-        <h1>Smart Home</h1>
-        <p class="logo-subtitle">Welcome back</p>
+    <div class="logo">
+      <div class="logo-icon" id="logo-icon">
+        <svg class="icon-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
       </div>
-
-      <div class="card">
-        <div id="error-container"></div>
-        <form id="login-form">
-          <div class="input-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username" />
-          </div>
-          <div class="input-group">
-            <label for="password">Password</label>
-            <div class="input-wrapper">
-              <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password" style="padding-right: 50px" />
-              <button type="button" class="input-icon" id="toggle-password">
-                <i class="mdi mdi-eye"></i>
-              </button>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary" id="submit-btn">
-            <i class="mdi mdi-login"></i>
-            <span>Sign In</span>
-          </button>
-        </form>
-      </div>
+      <h1>Smart Home</h1>
+      <p class="logo-subtitle">Sign in to continue</p>
     </div>
+
+    <div id="error-container"></div>
+    <form id="login-form">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username" />
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password" style="padding-right: 50px" />
+          <button type="button" class="input-icon" id="toggle-password">
+            <i class="mdi mdi-eye"></i>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit-btn">
+        <i class="mdi mdi-login"></i>
+        <span>Sign In</span>
+      </button>
+    </form>
   </div>
 </div>
