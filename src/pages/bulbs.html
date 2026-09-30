@@ -1,0 +1,103 @@
+<div class="home-wrapper">
+  <div class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="back-btn" id="bulbs-back-btn" title="Back">
+          <i class="mdi mdi-arrow-left"></i>
+        </button>
+        <div class="header-text">
+          <h1>Bulbs</h1>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="refresh-btn" id="manage-presets-btn" title="Manage Presets">
+          <i class="mdi mdi-palette-swatch-outline"></i>
+        </button>
+        <button class="refresh-btn" id="bulbs-refresh-btn" title="Refresh">
+          <i class="mdi mdi-refresh"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content" id="bulbs-main-content">
+    <div class="scroll-inner">
+      <div id="bulbs-message-container"></div>
+
+      <div class="section-label">Lights</div>
+      <div class="device-list" id="bulbs-device-list"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="preset-name-overlay">
+    <div class="modal-panel">
+      <div class="modal-panel-header">
+        <span>Save Preset</span>
+        <button class="modal-close-btn" id="preset-name-close-btn">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+        <div class="input-group">
+          <label for="preset-name-input">Preset name</label>
+          <div class="input-wrapper">
+            <input type="text" id="preset-name-input" placeholder="e.g. Warm White" maxlength="40" autocomplete="off" />
+          </div>
+        </div>
+        <button class="btn btn-primary modal-confirm-btn" id="preset-name-confirm-btn">
+          <i class="mdi mdi-content-save"></i>
+          <span>Save Preset</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="preset-picker-overlay">
+    <div class="modal-panel modal-panel-list">
+      <div class="modal-panel-header">
+        <span id="preset-picker-title">Presets</span>
+        <button class="modal-close-btn" id="preset-picker-close-btn">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+      <div class="modal-scroll-list" id="preset-picker-list"></div>
+      <div class="empty-state hidden" id="preset-picker-empty-state">
+        <i class="mdi mdi-palette-swatch-outline"></i>
+        <span>No presets yet — save one from a bulb first.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="bulb-details-overlay">
+    <div class="modal-panel modal-panel-list">
+      <div class="modal-panel-header">
+        <span id="bulb-details-title">Details</span>
+        <button class="modal-close-btn" id="bulb-details-close-btn">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+      <div class="info-list modal-scroll-list" id="bulb-details-list"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirm-delete-overlay">
+    <div class="modal-panel">
+      <div class="modal-panel-header">
+        <span>Delete Preset?</span>
+        <button class="modal-close-btn" id="confirm-delete-close-btn">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+        <p class="confirm-message" id="confirm-delete-message">Delete this preset? This can't be undone.</p>
+        <div class="confirm-actions">
+          <button class="btn btn-secondary" id="confirm-delete-cancel-btn">Cancel</button>
+          <button class="btn btn-danger" id="confirm-delete-confirm-btn">
+            <i class="mdi mdi-trash-can-outline"></i>
+            <span>Delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

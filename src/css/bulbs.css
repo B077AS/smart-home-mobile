@@ -1,0 +1,241 @@
+.back-btn {
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.back-btn i { font-size: 22px; }
+.back-btn:active { opacity: 0.6; }
+
+.bulb-icon i { color: var(--warning); }
+
+.device-row-actions {
+  display: flex;
+  margin-top: 4px;
+}
+.device-row-actions > * + * { margin-left: 10px; }
+.device-row-actions > * { flex: 1; }
+
+.btn-secondary {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  min-height: 44px;
+  font-size: 13px;
+}
+.btn-secondary > * + * { margin-left: 8px; }
+.btn-secondary i { font-size: 16px; color: var(--accent); }
+.btn-secondary:active:not(:disabled) { background: var(--bg-card-hover); }
+.btn-secondary:disabled i { color: var(--text-tertiary); }
+
+.preset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 4px;
+  border-bottom: 1px solid var(--border);
+  animation: fadeUp 0.3s ease both;
+}
+.preset-row > * + * { margin-left: 10px; }
+
+.preset-row-selectable {
+  cursor: pointer;
+}
+.preset-row-selectable:active {
+  background: var(--bg-card-hover);
+}
+
+.preset-row-main {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+.preset-row-main > * + * { margin-left: 12px; }
+
+.preset-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+}
+.preset-icon i { font-size: 14px; color: var(--accent); }
+
+.preset-row-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preset-row-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.preset-row-actions > * + * { margin-left: 4px; }
+
+.default-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--warning-subtle);
+  color: var(--warning);
+  flex-shrink: 0;
+}
+.default-badge i { font-size: 16px; }
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.icon-btn i { font-size: 17px; }
+.icon-btn:active:not(:disabled) { color: var(--accent); }
+.icon-btn.danger:active:not(:disabled) { color: var(--error); }
+.icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--text-tertiary);
+}
+.empty-state > * + * { margin-top: 10px; }
+.empty-state i { font-size: 30px; }
+.empty-state span { font-size: 13px; max-width: 260px; }
+
+/* ---- Modal: centered card, same overlay technique as the menu drawer ---- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-panel {
+  width: 100%;
+  max-width: 340px;
+  background: var(--bg-base);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.94);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.modal-overlay.visible .modal-panel {
+  transform: scale(1);
+}
+
+.modal-panel-list {
+  max-width: 380px;
+}
+
+.modal-scroll-list {
+  max-height: 50vh;
+  /* always reserve the scrollbar's width (rather than "auto") so it doesn't
+     pop in/out and shove the row content sideways once the list is tall enough to scroll */
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  border-top: 1px solid var(--border);
+  margin: 0 -22px;
+  padding: 4px 22px 0;
+}
+
+.modal-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-close-btn {
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.modal-close-btn:active { color: var(--text-primary); }
+.modal-close-btn i { font-size: 16px; }
+
+.modal-panel-body .input-group { margin-bottom: 18px; }
+
+.modal-confirm-btn {
+  width: 100%;
+}
+.modal-confirm-btn > * + * { margin-left: 8px; }
+
+.confirm-message {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+}
+.confirm-actions > * + * { margin-left: 10px; }
+.confirm-actions > * { flex: 1; }
+
+.btn-danger {
+  background: var(--error-subtle);
+  color: var(--error);
+}
+.btn-danger > * + * { margin-left: 8px; }
+.btn-danger i { font-size: 16px; color: var(--error); }
+.btn-danger:active:not(:disabled) { background: rgba(245, 69, 92, 0.22); }

@@ -548,8 +548,8 @@ details[open] .accordion-chevron {
 }
 
 .toggle-switch input:checked + .toggle-track {
-  background: var(--accent-light);
-  border-color: var(--accent-light);
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
 }
 .toggle-switch input:checked + .toggle-track .toggle-thumb {
   background: #fff;
@@ -683,6 +683,30 @@ details[open] .accordion-chevron {
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
+}
+
+.menu-nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--bg-elevated);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: left;
+}
+.menu-nav-btn > * + * { margin-left: 10px; }
+.menu-nav-btn i { font-size: 17px; color: var(--accent); }
+.menu-nav-btn:active { background: var(--bg-card-hover); }
+.menu-nav-chevron {
+  margin-left: auto !important;
+  color: var(--text-tertiary) !important;
+  font-size: 16px !important;
 }
 
 .theme-options {

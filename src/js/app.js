@@ -3,6 +3,7 @@ import { AuthService } from "./auth.js";
 import { ApiService } from "./api.js";
 import { LoginPage } from "./pages/login.js";
 import { HomePage } from "./pages/home.js";
+import { BulbsPage } from "./pages/bulbs.js";
 import { themeManager } from "./theme.js";
 
 import '@fontsource/inter/400.css';
@@ -18,6 +19,7 @@ import '@fontsource/jetbrains-mono/600.css';
 import "../css/global.css";
 import "../css/login.css";
 import "../css/home.css";
+import "../css/bulbs.css";
 import "../css/icons.css";
 
 class SmartHomeApp {
@@ -27,7 +29,8 @@ class SmartHomeApp {
     this.appContainer = document.getElementById("app");
 
     this.loginPage = new LoginPage(this.appContainer, this.authService, () => this.showHomePage());
-    this.homePage = new HomePage(this.appContainer, this.authService, this.apiService, () => this.showLoginPage());
+    this.homePage = new HomePage(this.appContainer, this.authService, this.apiService, () => this.showLoginPage(), () => this.showBulbsPage());
+    this.bulbsPage = new BulbsPage(this.appContainer, this.authService, this.apiService, () => this.showHomePage(), () => this.showLoginPage());
   }
 
   async init() {
@@ -53,6 +56,12 @@ class SmartHomeApp {
     document.body.classList.remove("login-page");
     document.body.classList.add("home-page");
     this.homePage.render();
+  }
+
+  showBulbsPage() {
+    document.body.classList.remove("login-page");
+    document.body.classList.add("home-page");
+    this.bulbsPage.render();
   }
 }
 

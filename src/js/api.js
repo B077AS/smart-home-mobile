@@ -216,4 +216,212 @@ export class ApiService {
       throw error;
     }
   }
+
+  async getLightStates(accessToken) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to get light states");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API: Get light states error:", error);
+      throw error;
+    }
+  }
+
+  async refreshLights(accessToken) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights/refresh`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to refresh lights");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API: Refresh lights error:", error);
+      throw error;
+    }
+  }
+
+  async applyPreset(accessToken, deviceName, presetId) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights/${deviceName}/apply-preset/${presetId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to apply preset");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API: Apply preset error:", error);
+      throw error;
+    }
+  }
+
+  async setLightPower(accessToken, deviceName, on) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights/${deviceName}/${on ? "on" : "off"}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || `Failed to turn light ${on ? "ON" : "OFF"}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API: Set light power error:", error);
+      throw error;
+    }
+  }
+
+  async listPresets(accessToken) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/light-presets`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to load presets");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API: List presets error:", error);
+      throw error;
+    }
+  }
+
+  async createPreset(accessToken, deviceName, name) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/light-presets`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ deviceName, name }),
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save preset");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API: Create preset error:", error);
+      throw error;
+    }
+  }
+
+  async setDefaultPreset(accessToken, id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/light-presets/${id}/default`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to set default preset");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API: Set default preset error:", error);
+      throw error;
+    }
+  }
+
+  async deletePreset(accessToken, id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/light-presets/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to delete preset");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("API: Delete preset error:", error);
+      throw error;
+    }
+  }
 }

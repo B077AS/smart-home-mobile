@@ -3,11 +3,12 @@ import { WebSocketService } from "../websocket.js";
 import { themeManager } from "../theme.js";
 
 export class HomePage {
-  constructor(container, authService, apiService, onLogout) {
+  constructor(container, authService, apiService, onLogout, onNavigateToBulbs) {
     this.container = container;
     this.authService = authService;
     this.apiService = apiService;
     this.onLogout = onLogout;
+    this.onNavigateToBulbs = onNavigateToBulbs;
 
     this.garageOnline = false;
     this.triggerInProgress = false;
@@ -32,6 +33,16 @@ export class HomePage {
     this.syncThemeSheet();
   }
 
+  // Called whenever navigation leaves this page (to Bulbs, or logging out) — without this,
+  // the WebSocket keeps delivering messages to a page whose DOM was just replaced, and
+  // querySelector calls in the update handlers start returning null and throwing.
+  destroy() {
+    if (this.wsService) {
+      this.wsService.disconnect();
+      this.wsService = null;
+    }
+  }
+
   setupHandlers() {
     const logoutBtn = this.container.querySelector("#logout-btn");
     const triggerBtn = this.container.querySelector("#garage-trigger-btn");
@@ -47,11 +58,15 @@ export class HomePage {
     const heroOptionsBtn = this.container.querySelector("#hero-options-btn");
     const heroDropdown = this.container.querySelector("#hero-dropdown");
     const heroDropdownBackdrop = this.container.querySelector("#hero-dropdown-backdrop");
+    const bulbsNavBtn = this.container.querySelector("#nav-bulbs-btn");
+
+    bulbsNavBtn.addEventListener("click", () => {
+      this.destroy();
+      this.onNavigateToBulbs();
+    });
 
     logoutBtn.addEventListener("click", async () => {
-      if (this.wsService) {
-        this.wsService.disconnect();
-      }
+      this.destroy();
       await this.authService.logout();
       this.onLogout();
     });

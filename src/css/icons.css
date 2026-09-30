@@ -29,6 +29,10 @@
   content: "\F0CDB";
 }
 
+.mdi-arrow-left::before {
+  content: "\F004D";
+}
+
 .mdi-arrow-up-circle::before {
   content: "\F0CE1";
 }
@@ -49,6 +53,14 @@
   content: "\F0084";
 }
 
+.mdi-brightness-4::before {
+  content: "\F00DD";
+}
+
+.mdi-brightness-7::before {
+  content: "\F00E0";
+}
+
 .mdi-check::before {
   content: "\F012C";
 }
@@ -61,8 +73,24 @@
   content: "\F0140";
 }
 
+.mdi-chevron-right::before {
+  content: "\F0142";
+}
+
 .mdi-close::before {
   content: "\F0156";
+}
+
+.mdi-content-save::before {
+  content: "\F0193";
+}
+
+.mdi-content-save-outline::before {
+  content: "\F0818";
+}
+
+.mdi-creation::before {
+  content: "\F0674";
 }
 
 .mdi-current-ac::before {
@@ -97,8 +125,20 @@
   content: "\F0741";
 }
 
+.mdi-information-outline::before {
+  content: "\F02FD";
+}
+
 .mdi-leaf::before {
   content: "\F032A";
+}
+
+.mdi-lightbulb::before {
+  content: "\F0335";
+}
+
+.mdi-lightbulb-group::before {
+  content: "\F1253";
 }
 
 .mdi-lightning-bolt::before {
@@ -121,6 +161,18 @@
   content: "\F035C";
 }
 
+.mdi-palette::before {
+  content: "\F03D8";
+}
+
+.mdi-palette-swatch::before {
+  content: "\F08B5";
+}
+
+.mdi-palette-swatch-outline::before {
+  content: "\F135C";
+}
+
 .mdi-power::before {
   content: "\F0425";
 }
@@ -141,12 +193,28 @@
   content: "\F04A2";
 }
 
+.mdi-star::before {
+  content: "\F04CE";
+}
+
+.mdi-star-outline::before {
+  content: "\F04D2";
+}
+
 .mdi-swap-vertical::before {
   content: "\F04E2";
 }
 
 .mdi-thermometer::before {
   content: "\F050F";
+}
+
+.mdi-thermometer-lines::before {
+  content: "\F0510";
+}
+
+.mdi-trash-can-outline::before {
+  content: "\F0A7A";
 }
 
 .mdi-vibrate::before {
