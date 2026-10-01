@@ -57,6 +57,10 @@
   content: "\F00DD";
 }
 
+.mdi-brightness-6::before {
+  content: "\F00DF";
+}
+
 .mdi-brightness-7::before {
   content: "\F00E0";
 }
@@ -67,6 +71,18 @@
 
 .mdi-check-circle::before {
   content: "\F05E0";
+}
+
+.mdi-checkbox-blank-circle-outline::before {
+  content: "\F0130";
+}
+
+.mdi-checkbox-marked-circle::before {
+  content: "\F0133";
+}
+
+.mdi-checkbox-multiple-marked-outline::before {
+  content: "\F0139";
 }
 
 .mdi-chevron-down::before {
@@ -107,6 +123,10 @@
 
 .mdi-eye-off::before {
   content: "\F0209";
+}
+
+.mdi-eyedropper-variant::before {
+  content: "\F020B";
 }
 
 .mdi-garage-open-variant::before {
@@ -181,6 +201,10 @@
   content: "\F06A5";
 }
 
+.mdi-power-plug-off::before {
+  content: "\F06A6";
+}
+
 .mdi-refresh::before {
   content: "\F0450";
 }
@@ -219,6 +243,10 @@
 
 .mdi-vibrate::before {
   content: "\F0566";
+}
+
+.mdi-white-balance-sunny::before {
+  content: "\F05A8";
 }
 
 @-webkit-keyframes mdi-spin {

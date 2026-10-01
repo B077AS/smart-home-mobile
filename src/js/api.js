@@ -321,6 +321,34 @@ export class ApiService {
     }
   }
 
+  async setLightState(accessToken, deviceName, settings) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights/${deviceName}/state`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(settings),
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update light");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API: Set light state error:", error);
+      throw error;
+    }
+  }
+
   async listPresets(accessToken) {
     try {
       const response = await fetch(`${this.baseUrl}/api/light-presets`, {

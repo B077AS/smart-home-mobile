@@ -149,6 +149,14 @@ export class WebSocketService {
   disconnect() {
     this.isIntentionallyClosed = true;
     if (this.ws) {
+      // Detach handlers first: a MESSAGE frame can already be queued as a browser
+      // event when disconnect() is called (e.g. navigating away mid-delivery), and
+      // it would otherwise still fire afterwards and route into a torn-down page.
+      this.ws.onmessage = null;
+      this.ws.onclose = null;
+      this.ws.onerror = null;
+      this.ws.onopen = null;
+
       const disconnectFrame = `DISCONNECT\n\n\0`;
       this.ws.send(disconnectFrame);
       this.ws.close();
