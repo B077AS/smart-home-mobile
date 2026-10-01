@@ -40,7 +40,6 @@ export class BulbsPage {
     this.pendingApplyDevices = [];
     this.pendingDeleteId = null;
     this.pendingControlDevices = [];
-    this.selectionMode = false;
     this.selectedDevices = new Set();
 
     // Per-device memory of the last color used in "Color" mode and the last
@@ -130,13 +129,31 @@ export class BulbsPage {
     const backBtn = this.container.querySelector("#bulbs-back-btn");
     const refreshBtn = this.container.querySelector("#bulbs-refresh-btn");
     const managePresetsBtn = this.container.querySelector("#manage-presets-btn");
-    const selectModeBtn = this.container.querySelector("#bulbs-select-btn");
+    const selectAllBtn = this.container.querySelector("#bulbs-select-all-btn");
+    const optionsBtn = this.container.querySelector("#bulbs-options-btn");
+    const optionsDropdown = this.container.querySelector("#bulbs-options-dropdown");
+    const optionsBackdrop = this.container.querySelector("#bulbs-options-backdrop");
     const deviceList = this.container.querySelector("#bulbs-device-list");
 
     backBtn.addEventListener("click", () => this.onBack());
     refreshBtn.addEventListener("click", () => this.handleRefresh());
     managePresetsBtn.addEventListener("click", () => this.openPresetPicker(null));
-    selectModeBtn.addEventListener("click", () => this.toggleSelectionMode());
+    selectAllBtn.addEventListener("click", () => this.toggleSelectAll());
+
+    optionsBtn.addEventListener("click", () => {
+      optionsDropdown.classList.add("open");
+      optionsBackdrop.classList.add("visible");
+    });
+    optionsBackdrop.addEventListener("click", () => {
+      optionsDropdown.classList.remove("open");
+      optionsBackdrop.classList.remove("visible");
+    });
+    optionsDropdown.addEventListener("click", (e) => {
+      if (e.target.closest(".hero-dropdown-item")) {
+        optionsDropdown.classList.remove("open");
+        optionsBackdrop.classList.remove("visible");
+      }
+    });
 
     deviceList.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-action]");
@@ -191,22 +208,26 @@ export class BulbsPage {
     });
   }
 
-  toggleSelectionMode() {
-    this.selectionMode = !this.selectionMode;
-    this.selectedDevices.clear();
-
+  // Selecting all is just "select every bulb that isn't already selected" —
+  // and tapping it again when everything's already selected clears it, so it
+  // doubles as a clear-all without needing a separate cancel control.
+  toggleSelectAll() {
+    const allSelected = this.selectedDevices.size === KNOWN_BULBS.length;
     const list = this.container.querySelector("#bulbs-device-list");
-    list.classList.toggle("select-mode", this.selectionMode);
-    list.querySelectorAll(".select-check-btn").forEach((btn) => {
-      btn.classList.remove("selected");
-      btn.querySelector("i").className = "mdi mdi-checkbox-blank-circle-outline";
-    });
 
-    const selectModeBtn = this.container.querySelector("#bulbs-select-btn");
-    selectModeBtn.classList.toggle("active", this.selectionMode);
-    selectModeBtn.querySelector("i").className = this.selectionMode ? "mdi mdi-close" : "mdi mdi-checkbox-multiple-marked-outline";
-    selectModeBtn.querySelector("span").textContent = this.selectionMode ? "Cancel" : "Select";
-    selectModeBtn.title = this.selectionMode ? "Cancel Selection" : "Select Multiple";
+    KNOWN_BULBS.forEach((bulb) => {
+      const shouldSelect = !allSelected;
+      const btn = list.querySelector(`.select-check-btn[data-device="${bulb.deviceName}"]`);
+      if (shouldSelect) {
+        this.selectedDevices.add(bulb.deviceName);
+      } else {
+        this.selectedDevices.delete(bulb.deviceName);
+      }
+      if (btn) {
+        btn.classList.toggle("selected", shouldSelect);
+        btn.querySelector("i").className = shouldSelect ? "mdi mdi-checkbox-marked-circle" : "mdi mdi-checkbox-blank-circle-outline";
+      }
+    });
 
     this.updateSelectionBar();
   }
@@ -229,11 +250,17 @@ export class BulbsPage {
     const bar = this.container.querySelector("#bulbs-selection-bar");
     const count = this.selectedDevices.size;
 
-    bar.classList.toggle("hidden", !this.selectionMode);
+    bar.classList.toggle("hidden", count === 0);
     this.container.querySelector("#selection-power-on-btn").disabled = count === 0;
     this.container.querySelector("#selection-power-off-btn").disabled = count === 0;
     this.container.querySelector("#selection-adjust-btn").disabled = count === 0;
     this.container.querySelector("#selection-preset-btn").disabled = count === 0;
+
+    const selectAllBtn = this.container.querySelector("#bulbs-select-all-btn");
+    const allSelected = count > 0 && count === KNOWN_BULBS.length;
+    selectAllBtn.classList.toggle("active", allSelected);
+    selectAllBtn.querySelector("i").className = allSelected ? "mdi mdi-checkbox-marked-circle" : "mdi mdi-checkbox-blank-circle-outline";
+    selectAllBtn.querySelector("span").textContent = allSelected ? "Deselect All" : "Select All";
   }
 
   async handleGroupPower(turnOn) {

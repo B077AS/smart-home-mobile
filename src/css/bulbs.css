@@ -44,8 +44,10 @@
   }
 }
 
+/* Always visible now (not gated behind a separate "select mode") — tapping
+   a bulb's own dot is the entry point into multi-select. */
 .select-check-btn {
-  display: none;
+  display: flex;
   width: 22px;
   height: 22px;
   flex-shrink: 0;
@@ -59,42 +61,38 @@
 }
 .select-check-btn i { font-size: 20px; }
 .select-check-btn.selected { color: var(--accent); }
-.device-list.select-mode .select-check-btn { display: flex; }
 
-/* ---- Page toolbar: Select Multiple / Manage Presets, pulled out of the header
-   (where they were cramped 30px icon-only buttons) into labeled pill buttons
-   above the device list. ---- */
+/* ---- Lights section row: the label plus a Select All toggle for the list
+   directly below it. ---- */
 
-.page-toolbar {
+.section-row {
   display: flex;
-  justify-content: center;
-  margin-bottom: 26px;
-}
-.page-toolbar > * + * { margin-left: 10px; }
-
-.pill-btn {
-  display: inline-flex;
   align-items: center;
-  min-height: 32px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-full);
-  color: var(--text-primary);
-  padding: 0 14px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-row .section-label {
+  margin-bottom: 0;
+}
+
+.select-all-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-tertiary);
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
 }
-.pill-btn > * + * { margin-left: 8px; }
-.pill-btn i { font-size: 16px; color: var(--accent); }
-.pill-btn:active { background: var(--bg-card-hover); }
-.pill-btn.active {
-  background: var(--accent-subtle);
-  border-color: var(--border-accent);
-  color: var(--accent);
-}
-.pill-btn.active i { color: var(--accent); }
+.select-all-btn > * + * { margin-left: 6px; }
+.select-all-btn i { font-size: 17px; }
+.select-all-btn.active { color: var(--accent); }
+.select-all-btn.active i { color: var(--accent); }
 
 /* ---- Multi-select toolbar ---- */
 

@@ -10,9 +10,22 @@
         </div>
       </div>
       <div class="header-right">
-        <button class="refresh-btn" id="bulbs-refresh-btn" title="Refresh">
-          <i class="mdi mdi-refresh"></i>
-        </button>
+        <div class="hero-options">
+          <button class="refresh-btn" id="bulbs-options-btn" title="More options">
+            <i class="mdi mdi-dots-vertical"></i>
+          </button>
+          <div class="hero-dropdown" id="bulbs-options-dropdown">
+            <button class="hero-dropdown-item" id="manage-presets-btn">
+              <i class="mdi mdi-bookmark-multiple-outline"></i>
+              <span>Presets</span>
+            </button>
+            <button class="hero-dropdown-item" id="bulbs-refresh-btn">
+              <i class="mdi mdi-refresh"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+        <div class="hero-dropdown-backdrop" id="bulbs-options-backdrop"></div>
       </div>
     </div>
   </div>
@@ -21,14 +34,11 @@
     <div class="scroll-inner">
       <div id="bulbs-message-container"></div>
 
-      <div class="page-toolbar">
-        <button class="pill-btn" id="bulbs-select-btn" title="Select Multiple">
-          <i class="mdi mdi-checkbox-multiple-marked-outline"></i>
-          <span>Select</span>
-        </button>
-        <button class="pill-btn" id="manage-presets-btn" title="Manage Presets">
-          <i class="mdi mdi-bookmark-multiple-outline"></i>
-          <span>Presets</span>
+      <div class="section-row">
+        <div class="section-label">Lights</div>
+        <button class="select-all-btn" id="bulbs-select-all-btn" title="Select All">
+          <i class="mdi mdi-checkbox-blank-circle-outline"></i>
+          <span>Select All</span>
         </button>
       </div>
 
@@ -53,7 +63,6 @@
         </div>
       </div>
 
-      <div class="section-label">Lights</div>
       <div class="device-list" id="bulbs-device-list"></div>
     </div>
   </div>
