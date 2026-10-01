@@ -10,12 +10,6 @@
         </div>
       </div>
       <div class="header-right">
-        <button class="refresh-btn" id="bulbs-select-btn" title="Select Multiple">
-          <i class="mdi mdi-checkbox-multiple-marked-outline"></i>
-        </button>
-        <button class="refresh-btn" id="manage-presets-btn" title="Manage Presets">
-          <i class="mdi mdi-palette-swatch-outline"></i>
-        </button>
         <button class="refresh-btn" id="bulbs-refresh-btn" title="Refresh">
           <i class="mdi mdi-refresh"></i>
         </button>
@@ -27,20 +21,34 @@
     <div class="scroll-inner">
       <div id="bulbs-message-container"></div>
 
+      <div class="page-toolbar">
+        <button class="pill-btn" id="bulbs-select-btn" title="Select Multiple">
+          <i class="mdi mdi-checkbox-multiple-marked-outline"></i>
+          <span>Select</span>
+        </button>
+        <button class="pill-btn" id="manage-presets-btn" title="Manage Presets">
+          <i class="mdi mdi-bookmark-multiple-outline"></i>
+          <span>Presets</span>
+        </button>
+      </div>
+
       <div class="selection-bar hidden" id="bulbs-selection-bar">
-        <span class="selection-count" id="bulbs-selection-count">Select lights</span>
-        <div class="selection-actions">
-          <button class="icon-btn" id="selection-power-on-btn" title="Turn On" disabled>
-            <i class="mdi mdi-power"></i>
+        <div class="action-tile-grid">
+          <button class="action-tile" id="selection-power-on-btn" title="Turn On" disabled>
+            <i class="mdi mdi-lightbulb-on"></i>
+            <span>On</span>
           </button>
-          <button class="icon-btn" id="selection-power-off-btn" title="Turn Off" disabled>
-            <i class="mdi mdi-power-plug-off"></i>
+          <button class="action-tile" id="selection-power-off-btn" title="Turn Off" disabled>
+            <i class="mdi mdi-lightbulb-off"></i>
+            <span>Off</span>
           </button>
-          <button class="icon-btn" id="selection-adjust-btn" title="Color & Brightness" disabled>
+          <button class="action-tile" id="selection-adjust-btn" title="Color & Brightness" disabled>
             <i class="mdi mdi-palette"></i>
+            <span>Color</span>
           </button>
-          <button class="icon-btn" id="selection-preset-btn" title="Apply Preset" disabled>
-            <i class="mdi mdi-palette-swatch"></i>
+          <button class="action-tile" id="selection-preset-btn" title="Apply Preset" disabled>
+            <i class="mdi mdi-bookmark-check"></i>
+            <span>Preset</span>
           </button>
         </div>
       </div>
@@ -83,7 +91,7 @@
       </div>
       <div class="modal-scroll-list" id="preset-picker-list"></div>
       <div class="empty-state hidden" id="preset-picker-empty-state">
-        <i class="mdi mdi-palette-swatch-outline"></i>
+        <i class="mdi mdi-bookmark-multiple-outline"></i>
         <span>No presets yet — save one from a bulb first.</span>
       </div>
     </div>
@@ -112,11 +120,11 @@
       <div class="modal-panel-body">
         <div class="control-row">
           <div class="control-label"><i class="mdi mdi-brightness-6"></i><span>Brightness</span></div>
-          <span class="control-value" id="light-control-brightness-value">100%</span>
+          <span class="control-value" data-role="brightness-value">100%</span>
         </div>
-        <input type="range" class="range-slider brightness-slider" id="light-control-brightness-slider" min="1" max="100" value="100" />
+        <input type="range" class="range-slider brightness-slider" data-role="brightness-slider" min="1" max="100" value="100" />
 
-        <div class="mode-toggle" id="light-control-mode-toggle">
+        <div class="mode-toggle" data-role="mode-toggle">
           <button type="button" class="mode-toggle-btn active" data-mode="color">
             <i class="mdi mdi-palette"></i><span>Color</span>
           </button>
@@ -125,23 +133,23 @@
           </button>
         </div>
 
-        <div class="color-picker-row" id="light-control-color-row">
-          <div class="color-wheel-wrap" id="light-control-wheel-wrap">
-            <canvas id="light-control-color-wheel" width="220" height="220"></canvas>
-            <div class="wheel-cursor" id="light-control-wheel-cursor"></div>
+        <div class="color-picker-row">
+          <div class="color-wheel-wrap" data-role="wheel-wrap">
+            <canvas data-role="color-wheel" width="220" height="220"></canvas>
+            <div class="wheel-cursor"></div>
           </div>
           <div class="control-row">
             <span class="control-label"><i class="mdi mdi-eyedropper-variant"></i><span>Color</span></span>
-            <span class="control-value" id="light-control-color-hex">#FFFFFF</span>
+            <span class="control-value color-hex-value" data-role="color-hex">#FFFFFF</span>
           </div>
         </div>
 
-        <div class="color-temp-row hidden" id="light-control-temp-row">
+        <div class="color-temp-row hidden">
           <div class="control-row">
             <div class="control-label"><i class="mdi mdi-thermometer"></i><span>White Temp</span></div>
-            <span class="control-value" id="light-control-temp-value">4000K</span>
+            <span class="control-value" data-role="temp-value">4000K</span>
           </div>
-          <input type="range" class="range-slider color-temp-slider" id="light-control-temp-slider" min="2000" max="6500" step="50" value="4000" />
+          <input type="range" class="range-slider color-temp-slider" data-role="temp-slider" min="2000" max="6500" step="50" value="4000" />
         </div>
       </div>
     </div>

@@ -7,6 +7,11 @@ const KNOWN_BULBS = [
 
 const COLOR_TEMP_MIN_KELVIN = 2000;
 const COLOR_TEMP_MAX_KELVIN = 6500;
+// Matches .color-wheel-wrap's fixed CSS size (and the canvas width/height) —
+// used instead of wrap.clientWidth, which reads 0 (and sends the cursor flying
+// to the top-left corner) whenever it's positioned while the color row is
+// hidden behind the White tab.
+const COLOR_WHEEL_SIZE = 220;
 
 const INFO_FIELDS = [
   { key: "state", label: "State", icon: "mdi-power" },
@@ -37,6 +42,18 @@ export class BulbsPage {
     this.pendingControlDevices = [];
     this.selectionMode = false;
     this.selectedDevices = new Set();
+
+    // Per-device memory of the last color used in "Color" mode and the last
+    // kelvin value used in "White" mode, so switching tabs restores + re-applies
+    // whichever one was last active instead of guessing from (possibly stale/
+    // absent) device state for the inactive mode.
+    this.lastColorHex = {};
+    this.lastColorTemp = {};
+
+    // Tracks the bulb-icon color last actually applied per device, so the
+    // "ignite" glow animation only plays on a real on/color change — not on
+    // every periodic state refresh that happens to report the same thing.
+    this.lastBulbIconColor = {};
   }
 
   render() {
@@ -71,12 +88,6 @@ export class BulbsPage {
               <span class="status-badge status-checking" data-role="state-badge">
                 <span class="status-dot"></span>
               </span>
-              <button class="icon-btn" data-action="adjust" data-device="${bulb.deviceName}" title="Color & Brightness" disabled>
-                <i class="mdi mdi-palette"></i>
-              </button>
-              <button class="icon-btn" data-action="details" data-device="${bulb.deviceName}" title="Details">
-                <i class="mdi mdi-information-outline"></i>
-              </button>
               <i class="mdi mdi-chevron-down accordion-chevron"></i>
             </div>
           </summary>
@@ -90,13 +101,22 @@ export class BulbsPage {
                 </label>
               </div>
             </div>
-            <div class="device-row-actions">
-              <button class="btn-compact" data-action="save-preset" data-device="${bulb.deviceName}" disabled>
+
+            <div class="action-tile-grid">
+              <button class="action-tile" data-action="adjust" data-device="${bulb.deviceName}" disabled>
+                <i class="mdi mdi-palette"></i>
+                <span>Color & Brightness</span>
+              </button>
+              <button class="action-tile" data-action="details" data-device="${bulb.deviceName}">
+                <i class="mdi mdi-information-outline"></i>
+                <span>Info</span>
+              </button>
+              <button class="action-tile" data-action="save-preset" data-device="${bulb.deviceName}" disabled>
                 <i class="mdi mdi-content-save-outline"></i>
                 <span>Save Preset</span>
               </button>
-              <button class="btn-compact" data-action="apply-preset" data-device="${bulb.deviceName}">
-                <i class="mdi mdi-palette-swatch"></i>
+              <button class="action-tile" data-action="apply-preset" data-device="${bulb.deviceName}">
+                <i class="mdi mdi-bookmark-check"></i>
                 <span>Apply Preset</span>
               </button>
             </div>
@@ -125,12 +145,8 @@ export class BulbsPage {
       const action = btn.getAttribute("data-action");
 
       if (action === "details") {
-        e.preventDefault();
-        e.stopPropagation();
         this.openBulbDetailsModal(deviceName);
       } else if (action === "adjust") {
-        e.preventDefault();
-        e.stopPropagation();
         this.openLightControlModal(deviceName);
       } else if (action === "toggle-select") {
         e.preventDefault();
@@ -187,7 +203,9 @@ export class BulbsPage {
     });
 
     const selectModeBtn = this.container.querySelector("#bulbs-select-btn");
+    selectModeBtn.classList.toggle("active", this.selectionMode);
     selectModeBtn.querySelector("i").className = this.selectionMode ? "mdi mdi-close" : "mdi mdi-checkbox-multiple-marked-outline";
+    selectModeBtn.querySelector("span").textContent = this.selectionMode ? "Cancel" : "Select";
     selectModeBtn.title = this.selectionMode ? "Cancel Selection" : "Select Multiple";
 
     this.updateSelectionBar();
@@ -212,7 +230,6 @@ export class BulbsPage {
     const count = this.selectedDevices.size;
 
     bar.classList.toggle("hidden", !this.selectionMode);
-    this.container.querySelector("#bulbs-selection-count").textContent = count === 0 ? "Select lights" : `${count} selected`;
     this.container.querySelector("#selection-power-on-btn").disabled = count === 0;
     this.container.querySelector("#selection-power-off-btn").disabled = count === 0;
     this.container.querySelector("#selection-adjust-btn").disabled = count === 0;
@@ -308,9 +325,10 @@ export class BulbsPage {
   setupLightControlModal() {
     const overlay = this.container.querySelector("#light-control-overlay");
     const closeBtn = this.container.querySelector("#light-control-close-btn");
-    const brightnessSlider = this.container.querySelector("#light-control-brightness-slider");
-    const modeToggle = this.container.querySelector("#light-control-mode-toggle");
-    const tempSlider = this.container.querySelector("#light-control-temp-slider");
+    const brightnessSlider = overlay.querySelector('[data-role="brightness-slider"]');
+    const modeToggle = overlay.querySelector('[data-role="mode-toggle"]');
+    const tempSlider = overlay.querySelector('[data-role="temp-slider"]');
+    const wrap = overlay.querySelector('[data-role="wheel-wrap"]');
 
     closeBtn.addEventListener("click", () => this.closeLightControlModal());
     overlay.addEventListener("click", (e) => {
@@ -318,66 +336,42 @@ export class BulbsPage {
     });
 
     brightnessSlider.addEventListener("input", () => {
-      this.container.querySelector("#light-control-brightness-value").textContent = `${brightnessSlider.value}%`;
+      overlay.querySelector('[data-role="brightness-value"]').textContent = `${brightnessSlider.value}%`;
     });
     brightnessSlider.addEventListener("change", () => {
-      this.handleBrightnessChange(Number(brightnessSlider.value));
+      this.handleBrightnessChange(this.pendingControlDevices, Number(brightnessSlider.value));
     });
 
     modeToggle.addEventListener("click", (e) => {
       const btn = e.target.closest(".mode-toggle-btn");
-      if (!btn) return;
-      this.setLightControlMode(btn.getAttribute("data-mode"));
+      if (!btn || btn.classList.contains("active")) return;
+      this.switchLightControlMode(overlay, this.pendingControlDevices, btn.getAttribute("data-mode"));
     });
 
     tempSlider.addEventListener("input", () => {
-      this.container.querySelector("#light-control-temp-value").textContent = `${tempSlider.value}K`;
+      overlay.querySelector('[data-role="temp-value"]').textContent = `${tempSlider.value}K`;
     });
     tempSlider.addEventListener("change", () => {
-      this.handleColorTempChange(Number(tempSlider.value));
+      this.handleColorTempChange(this.pendingControlDevices, Number(tempSlider.value));
     });
 
-    this.drawColorWheel(this.container.querySelector("#light-control-color-wheel"));
-    this.setupColorWheelDrag();
+    this.drawColorWheel(overlay.querySelector('[data-role="color-wheel"]'));
+    this.setupColorWheelDrag(wrap, (hex) => this.handleColorChange(this.pendingControlDevices, hex));
   }
 
   openLightControlModal(deviceNameOrNames) {
     const devices = Array.isArray(deviceNameOrNames) ? deviceNameOrNames : [deviceNameOrNames];
     this.pendingControlDevices = devices;
+    const overlay = this.container.querySelector("#light-control-overlay");
     this.container.querySelector("#light-control-title").textContent =
       devices.length === 1 ? this.getBulbLabel(devices[0]) : `${devices.length} Lights`;
 
     // Multiple devices may currently differ — the first selected device's state is
     // just the starting point shown in the modal; every slider/color change still
     // gets sent to all selected devices together.
-    const state = this.lightStates[devices[0]] || {};
+    this.populateColorControls(overlay, this.lightStates[devices[0]] || {}, devices[0]);
 
-    const brightnessSlider = this.container.querySelector("#light-control-brightness-slider");
-    const percent = typeof state.brightness === "number" ? Math.round((state.brightness / 254) * 100) : 100;
-    brightnessSlider.value = Math.min(100, Math.max(1, percent));
-    this.container.querySelector("#light-control-brightness-value").textContent = `${brightnessSlider.value}%`;
-
-    const tempSlider = this.container.querySelector("#light-control-temp-slider");
-    const kelvin = typeof state.color_temp === "number" ? Math.round(1000000 / state.color_temp) : 4000;
-    tempSlider.value = Math.min(COLOR_TEMP_MAX_KELVIN, Math.max(COLOR_TEMP_MIN_KELVIN, kelvin));
-    this.container.querySelector("#light-control-temp-value").textContent = `${tempSlider.value}K`;
-
-    const color = state.color;
-    let hue = 0;
-    let saturation = 0;
-    if (color && typeof color.hue === "number" && typeof color.saturation === "number") {
-      hue = color.hue;
-      saturation = color.saturation;
-    } else {
-      const hex = this.deriveColorHex(state) || "#ffffff";
-      const [r, g, b] = this.hexToRgb(hex);
-      [hue, saturation] = this.rgbToHsv(r, g, b);
-    }
-    this.positionColorWheelCursor(hue, saturation);
-
-    this.setLightControlMode(state.color_mode === "color_temp" ? "white" : "color");
-
-    this.container.querySelector("#light-control-overlay").classList.add("visible");
+    overlay.classList.add("visible");
   }
 
   closeLightControlModal() {
@@ -385,12 +379,74 @@ export class BulbsPage {
     this.container.querySelector("#light-control-overlay").classList.remove("visible");
   }
 
-  setLightControlMode(mode) {
-    this.container.querySelectorAll("#light-control-mode-toggle .mode-toggle-btn").forEach((btn) => {
+  populateColorControls(root, state, deviceName) {
+    // Keep each device's last-used color and last-used white temp around,
+    // independent of which mode it's actually in right now — the bulb only
+    // reports live data for its *current* mode, so this is what lets switching
+    // tabs restore the other mode's last value instead of guessing.
+    if (deviceName) {
+      if (state.color_mode === "color_temp" && typeof state.color_temp === "number") {
+        this.lastColorTemp[deviceName] = Math.round(1000000 / state.color_temp);
+      } else if (state.color) {
+        const hex = this.deriveColorHex(state);
+        if (hex) this.lastColorHex[deviceName] = hex;
+      }
+    }
+    const rememberedTemp = deviceName ? this.lastColorTemp[deviceName] : undefined;
+    const rememberedHex = deviceName ? this.lastColorHex[deviceName] : undefined;
+
+    const brightnessSlider = root.querySelector('[data-role="brightness-slider"]');
+    const percent = typeof state.brightness === "number" ? Math.round((state.brightness / 254) * 100) : 100;
+    brightnessSlider.value = Math.min(100, Math.max(1, percent));
+    root.querySelector('[data-role="brightness-value"]').textContent = `${brightnessSlider.value}%`;
+
+    const tempSlider = root.querySelector('[data-role="temp-slider"]');
+    const kelvin = rememberedTemp ?? (typeof state.color_temp === "number" ? Math.round(1000000 / state.color_temp) : 4000);
+    tempSlider.value = Math.min(COLOR_TEMP_MAX_KELVIN, Math.max(COLOR_TEMP_MIN_KELVIN, kelvin));
+    root.querySelector('[data-role="temp-value"]').textContent = `${tempSlider.value}K`;
+
+    const color = state.color;
+    let hue = 0;
+    let saturation = 0;
+    if (!rememberedHex && state.color_mode !== "color_temp" && color && typeof color.hue === "number" && typeof color.saturation === "number") {
+      hue = color.hue;
+      saturation = color.saturation;
+    } else {
+      const hex = rememberedHex || this.deriveColorHex(state) || "#ffffff";
+      const [r, g, b] = this.hexToRgb(hex);
+      [hue, saturation] = this.rgbToHsv(r, g, b);
+    }
+    this.positionColorWheelCursor(root.querySelector('[data-role="wheel-wrap"]'), hue, saturation);
+
+    this.setLightControlMode(root, state.color_mode === "color_temp" ? "white" : "color");
+  }
+
+  setLightControlMode(root, mode) {
+    root.querySelectorAll(".mode-toggle-btn").forEach((btn) => {
       btn.classList.toggle("active", btn.getAttribute("data-mode") === mode);
     });
-    this.container.querySelector("#light-control-color-row").classList.toggle("hidden", mode !== "color");
-    this.container.querySelector("#light-control-temp-row").classList.toggle("hidden", mode !== "white");
+    root.querySelector(".color-picker-row").classList.toggle("hidden", mode !== "color");
+    root.querySelector(".color-temp-row").classList.toggle("hidden", mode !== "white");
+  }
+
+  // Clicking a mode tab doesn't just swap which controls are visible — it actually
+  // switches the bulb's color mode, re-sending whichever value (color or white
+  // temp) was last used so the device genuinely changes instead of just the UI.
+  switchLightControlMode(root, devices, mode) {
+    this.setLightControlMode(root, mode);
+    if (!devices || devices.length === 0) return;
+
+    const deviceName = devices[0];
+    if (mode === "white") {
+      const tempSlider = root.querySelector('[data-role="temp-slider"]');
+      const kelvin = this.lastColorTemp[deviceName] ?? Number(tempSlider.value);
+      tempSlider.value = kelvin;
+      root.querySelector('[data-role="temp-value"]').textContent = `${kelvin}K`;
+      this.handleColorTempChange(devices, kelvin);
+    } else {
+      const hex = this.lastColorHex[deviceName] || root.querySelector(".color-hex-value").textContent;
+      this.handleColorChange(devices, hex);
+    }
   }
 
   drawColorWheel(canvas) {
@@ -426,8 +482,7 @@ export class BulbsPage {
     ctx.putImageData(imageData, 0, 0);
   }
 
-  setupColorWheelDrag() {
-    const wrap = this.container.querySelector("#light-control-wheel-wrap");
+  setupColorWheelDrag(wrap, onCommit) {
     let dragging = false;
 
     const updateFromPoint = (clientX, clientY, commit) => {
@@ -443,9 +498,9 @@ export class BulbsPage {
 
       const clampedX = radius + Math.cos((hue * Math.PI) / 180) * dist;
       const clampedY = radius + Math.sin((hue * Math.PI) / 180) * dist;
-      const hex = this.applyColorWheelSelection(clampedX, clampedY, hue, saturation);
+      const hex = this.applyColorWheelSelection(wrap, clampedX, clampedY, hue, saturation);
 
-      if (commit) this.handleColorChange(hex);
+      if (commit) onCommit(hex);
     };
 
     wrap.addEventListener("pointerdown", (e) => {
@@ -467,30 +522,28 @@ export class BulbsPage {
     });
   }
 
-  applyColorWheelSelection(cursorX, cursorY, hue, saturation) {
-    const cursor = this.container.querySelector("#light-control-wheel-cursor");
+  applyColorWheelSelection(wrap, cursorX, cursorY, hue, saturation) {
+    const cursor = wrap.querySelector(".wheel-cursor");
     const hex = this.hsvToHex(hue, saturation, 100);
 
     cursor.style.left = `${cursorX}px`;
     cursor.style.top = `${cursorY}px`;
     cursor.style.background = hex;
-    this.container.querySelector("#light-control-color-hex").textContent = hex.toUpperCase();
+    wrap.closest(".color-picker-row").querySelector(".color-hex-value").textContent = hex.toUpperCase();
 
     return hex;
   }
 
-  positionColorWheelCursor(hue, saturation) {
-    const wrap = this.container.querySelector("#light-control-wheel-wrap");
-    const radius = wrap.clientWidth / 2;
+  positionColorWheelCursor(wrap, hue, saturation) {
+    const radius = COLOR_WHEEL_SIZE / 2;
     const dist = (Math.min(100, saturation) / 100) * radius;
     const x = radius + Math.cos((hue * Math.PI) / 180) * dist;
     const y = radius + Math.sin((hue * Math.PI) / 180) * dist;
-    this.applyColorWheelSelection(x, y, hue, saturation);
+    this.applyColorWheelSelection(wrap, x, y, hue, saturation);
   }
 
-  async applyToPendingDevices(settings) {
-    const devices = this.pendingControlDevices;
-    if (devices.length === 0) return;
+  async applyLightSettings(devices, settings) {
+    if (!devices || devices.length === 0) return;
 
     try {
       await this.runWithTokenRetry(() =>
@@ -502,19 +555,21 @@ export class BulbsPage {
     }
   }
 
-  handleBrightnessChange(percent) {
+  handleBrightnessChange(devices, percent) {
     // Send the raw ZCL level (0-254) rather than "brightness_percent" — that
     // convenience key isn't guaranteed to be wired up by every Zigbee2MQTT device
     // converter, while the raw level is supported by every dimmable Zigbee bulb.
-    return this.applyToPendingDevices({ brightness: Math.round((percent / 100) * 254) });
+    return this.applyLightSettings(devices, { brightness: Math.round((percent / 100) * 254) });
   }
 
-  handleColorTempChange(kelvin) {
-    return this.applyToPendingDevices({ color_temp: Math.round(1000000 / kelvin) });
+  handleColorTempChange(devices, kelvin) {
+    devices.forEach((d) => { this.lastColorTemp[d] = kelvin; });
+    return this.applyLightSettings(devices, { color_temp: Math.round(1000000 / kelvin) });
   }
 
-  handleColorChange(hex) {
-    return this.applyToPendingDevices({ color: { hex } });
+  handleColorChange(devices, hex) {
+    devices.forEach((d) => { this.lastColorHex[d] = hex; });
+    return this.applyLightSettings(devices, { color: { hex } });
   }
 
   // Best-effort preview only — actual color commands are sent as hex and converted
@@ -677,6 +732,7 @@ export class BulbsPage {
     const toggle = row.querySelector('input[data-role="power-toggle"]');
     const saveBtn = row.querySelector('button[data-action="save-preset"]');
     const adjustBtn = row.querySelector('button[data-action="adjust"]');
+    const bulbIcon = row.querySelector(".bulb-icon i");
 
     const hasData = state && Object.keys(state).length > 0;
     saveBtn.disabled = !hasData;
@@ -686,6 +742,7 @@ export class BulbsPage {
     if (!hasData) {
       badge.className = "status-badge status-checking";
       badge.innerHTML = '<span class="status-dot"></span><span>No Data</span>';
+      this.setBulbIconColor(deviceName, bulbIcon, null);
       return;
     }
 
@@ -693,6 +750,56 @@ export class BulbsPage {
     badge.className = isOn ? "status-badge status-online" : "status-badge status-offline";
     badge.innerHTML = `<span class="status-dot"></span><span>${state.state || "Unknown"}</span>`;
     toggle.checked = isOn;
+
+    this.setBulbIconColor(deviceName, bulbIcon, isOn ? this.computeBulbColor(state) : null);
+  }
+
+  // Applies the bulb's color to its row icon, with a one-shot "ignite" glow
+  // animation that only plays when the color actually changes (first real data
+  // arriving, turning on, or switching hue) — not on every identical poll.
+  setBulbIconColor(deviceName, bulbIcon, color) {
+    const prev = this.lastBulbIconColor[deviceName];
+    this.lastBulbIconColor[deviceName] = color;
+
+    bulbIcon.style.color = color || "";
+    bulbIcon.classList.toggle("is-on", !!color);
+
+    if (color && color !== prev) {
+      bulbIcon.classList.remove("igniting");
+      void bulbIcon.offsetWidth; // restart the animation even if it's already mid-play
+      bulbIcon.classList.add("igniting");
+    } else if (!color) {
+      bulbIcon.classList.remove("igniting");
+    }
+  }
+
+  // Shows the bulb's actual current color on its row icon: the live hue/saturation
+  // (or xy/rgb) while in color mode, or an approximate black-body tint derived from
+  // color_temp while in white mode — falls back to the default icon color (CSS)
+  // when it's off or nothing's determinable.
+  computeBulbColor(state) {
+    if (state.color_mode === "color_temp" && typeof state.color_temp === "number") {
+      return this.kelvinToHex(Math.round(1000000 / state.color_temp));
+    }
+    return this.deriveColorHex(state);
+  }
+
+  // Approximates the RGB tint of a given correlated color temperature using the
+  // standard black-body radiation curve fit (Tanner Helland's algorithm) — good
+  // enough for a decorative icon tint, not meant to be colorimetrically exact.
+  kelvinToHex(kelvin) {
+    const temp = kelvin / 100;
+
+    const r = temp <= 66 ? 255 : 329.698727446 * Math.pow(temp - 60, -0.1332047592);
+
+    const g =
+      temp <= 66
+        ? 99.4708025861 * Math.log(temp) - 161.1195681661
+        : 288.1221695283 * Math.pow(temp - 60, -0.0755148492);
+
+    const b = temp >= 66 ? 255 : temp <= 19 ? 0 : 138.5177312231 * Math.log(temp - 10) - 305.0447927307;
+
+    return this.rgbToHex(...[r, g, b].map((c) => Math.round(Math.min(255, Math.max(0, c)))));
   }
 
   openBulbDetailsModal(deviceName) {
@@ -847,7 +954,7 @@ export class BulbsPage {
         return `
           <div class="preset-row ${applyable ? "preset-row-selectable" : ""}" data-id="${preset.id}">
             <div class="preset-row-main">
-              <div class="preset-icon"><i class="mdi mdi-palette-swatch"></i></div>
+              <div class="preset-icon"><i class="mdi mdi-bookmark"></i></div>
               <div class="preset-row-name">${preset.name}</div>
             </div>
             <div class="preset-row-actions">

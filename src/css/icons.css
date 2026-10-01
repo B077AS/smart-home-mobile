@@ -53,6 +53,18 @@
   content: "\F0084";
 }
 
+.mdi-bookmark::before {
+  content: "\F00C0";
+}
+
+.mdi-bookmark-check::before {
+  content: "\F00C1";
+}
+
+.mdi-bookmark-multiple-outline::before {
+  content: "\F0E16";
+}
+
 .mdi-brightness-4::before {
   content: "\F00DD";
 }
@@ -161,6 +173,14 @@
   content: "\F1253";
 }
 
+.mdi-lightbulb-off::before {
+  content: "\F0E4F";
+}
+
+.mdi-lightbulb-on::before {
+  content: "\F06E8";
+}
+
 .mdi-lightning-bolt::before {
   content: "\F140B";
 }
@@ -185,24 +205,12 @@
   content: "\F03D8";
 }
 
-.mdi-palette-swatch::before {
-  content: "\F08B5";
-}
-
-.mdi-palette-swatch-outline::before {
-  content: "\F135C";
-}
-
 .mdi-power::before {
   content: "\F0425";
 }
 
 .mdi-power-plug::before {
   content: "\F06A5";
-}
-
-.mdi-power-plug-off::before {
-  content: "\F06A6";
 }
 
 .mdi-refresh::before {

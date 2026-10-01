@@ -14,7 +14,35 @@
 .back-btn i { font-size: 22px; }
 .back-btn:active { opacity: 0.6; }
 
-.bulb-icon i { color: var(--warning); }
+/* Neutral until real state loads (avoids a misleading "yellow" flash before
+   the live color is known) and smoothly eases between colors once it is. */
+.bulb-icon i {
+  color: var(--text-tertiary);
+  transition: color 0.4s ease;
+}
+
+/* Soft resting glow while on, plus a one-shot "power-up" bloom (.igniting)
+   that plays only when the color actually changes — see setBulbIconColor(). */
+.bulb-icon i.is-on {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+.bulb-icon i.igniting {
+  animation: bulb-ignite 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes bulb-ignite {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+    transform: scale(0.8);
+  }
+  45% {
+    filter: drop-shadow(0 0 10px currentColor);
+    transform: scale(1.18);
+  }
+  100% {
+    filter: drop-shadow(0 0 4px currentColor);
+    transform: scale(1);
+  }
+}
 
 .select-check-btn {
   display: none;
@@ -33,36 +61,84 @@
 .select-check-btn.selected { color: var(--accent); }
 .device-list.select-mode .select-check-btn { display: flex; }
 
+/* ---- Page toolbar: Select Multiple / Manage Presets, pulled out of the header
+   (where they were cramped 30px icon-only buttons) into labeled pill buttons
+   above the device list. ---- */
+
+.page-toolbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 26px;
+}
+.page-toolbar > * + * { margin-left: 10px; }
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-full);
+  color: var(--text-primary);
+  padding: 0 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pill-btn > * + * { margin-left: 8px; }
+.pill-btn i { font-size: 16px; color: var(--accent); }
+.pill-btn:active { background: var(--bg-card-hover); }
+.pill-btn.active {
+  background: var(--accent-subtle);
+  border-color: var(--border-accent);
+  color: var(--accent);
+}
+.pill-btn.active i { color: var(--accent); }
+
 /* ---- Multi-select toolbar ---- */
 
 .selection-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   background: var(--bg-card);
   border: 1px solid var(--border-strong);
   border-radius: var(--r-md);
-  padding: 10px 14px;
+  overflow: hidden;
+  padding: 8px 10px;
   margin-bottom: 14px;
 }
 
-.selection-count {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
+/* A selection toolbar is transient chrome, not page content — on a phone it
+   should read in one compact row (like Gmail/Photos' selection bar), not the
+   taller, more generously-padded 2-col grid the per-bulb accordion actions use.
+   Dividers are short centered ticks (via ::before), not full-height borders. */
+.selection-bar .action-tile-grid {
+  flex-wrap: nowrap;
+  border-top: none;
+  margin: 0 -4px;
+  width: calc(100% + 8px);
 }
-
-.selection-actions {
-  display: flex;
-  align-items: center;
+.selection-bar .action-tile {
+  position: relative;
+  width: auto;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 2px;
 }
-.selection-actions > * + * { margin-left: 4px; }
-
-.device-row-actions {
-  display: flex;
-  margin-top: 10px;
+.selection-bar .action-tile-grid .action-tile:nth-child(odd),
+.selection-bar .action-tile-grid .action-tile:nth-child(n+3) {
+  border: none;
 }
-.device-row-actions > * + * { margin-left: 10px; }
+.selection-bar .action-tile:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 1px;
+  background: var(--border);
+}
+.selection-bar .action-tile i { font-size: 17px; }
+.selection-bar .action-tile span { font-size: 10px; }
 
 .btn-secondary {
   background: var(--bg-card);
@@ -76,24 +152,43 @@
 .btn-secondary:active:not(:disabled) { background: var(--bg-card-hover); }
 .btn-secondary:disabled i { color: var(--text-tertiary); }
 
-.btn-compact {
-  display: inline-flex;
+/* ---- Action tiles: the four per-bulb actions (adjust / info / save / apply preset),
+   laid out as a flattened 2-col grid rather than a row of buttons so labels never
+   wrap or get clipped — same divider technique as .tile-grid in home.css. ---- */
+
+.action-tile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  margin-top: 14px;
+}
+
+.action-tile {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-md);
-  color: var(--text-primary);
-  padding: 8px 12px;
+  justify-content: center;
+  text-align: center;
+  background: none;
+  border: none;
+  padding: 16px 8px;
   font-family: var(--font-sans);
-  font-size: 12.5px;
-  font-weight: 600;
+  color: var(--text-secondary);
   cursor: pointer;
 }
-.btn-compact > * + * { margin-left: 6px; }
-.btn-compact i { font-size: 15px; color: var(--accent); }
-.btn-compact:active:not(:disabled) { background: var(--bg-card-hover); }
-.btn-compact:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-compact:disabled i { color: var(--text-tertiary); }
+.action-tile > * + * { margin-top: 7px; }
+.action-tile i { font-size: 19px; color: var(--accent); }
+.action-tile span {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.action-tile:nth-child(odd) { border-right: 1px solid var(--border); }
+.action-tile:nth-child(n+3) { border-top: 1px solid var(--border); }
+.action-tile:active:not(:disabled) { background: var(--bg-card-hover); }
+.action-tile:disabled { opacity: 0.4; cursor: not-allowed; }
+.action-tile:disabled i { color: var(--text-tertiary); }
 
 /* ---- Brightness / color / color-temp controls (light-control modal) ---- */
 
@@ -231,7 +326,6 @@
   justify-content: space-between;
   padding: 13px 4px;
   border-bottom: 1px solid var(--border);
-  animation: fadeUp 0.3s ease both;
 }
 .preset-row > * + * { margin-left: 10px; }
 
