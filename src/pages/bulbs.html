@@ -10,21 +10,61 @@
         </div>
       </div>
       <div class="header-right">
-        <button class="refresh-btn" id="manage-presets-btn" title="Manage Presets">
-          <i class="mdi mdi-palette-swatch-outline"></i>
-        </button>
-        <button class="refresh-btn" id="bulbs-refresh-btn" title="Refresh">
-          <i class="mdi mdi-refresh"></i>
-        </button>
+        <div class="hero-options">
+          <button class="refresh-btn" id="bulbs-options-btn" title="More options">
+            <i class="mdi mdi-dots-vertical"></i>
+          </button>
+          <div class="hero-dropdown" id="bulbs-options-dropdown">
+            <button class="hero-dropdown-item" id="manage-presets-btn">
+              <i class="mdi mdi-bookmark-multiple-outline"></i>
+              <span>Presets</span>
+            </button>
+            <button class="hero-dropdown-item" id="bulbs-refresh-btn">
+              <i class="mdi mdi-refresh"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+        <div class="hero-dropdown-backdrop" id="bulbs-options-backdrop"></div>
       </div>
     </div>
   </div>
 
   <div class="main-content" id="bulbs-main-content">
     <div class="scroll-inner">
-      <div id="bulbs-message-container"></div>
+      <div class="section-row">
+        <div class="section-label">Lights</div>
+        <button class="select-all-btn" id="bulbs-select-all-btn" title="Select All">
+          <i class="mdi mdi-checkbox-blank-circle-outline"></i>
+          <span>Select All</span>
+        </button>
+      </div>
 
-      <div class="section-label">Lights</div>
+      <div class="selection-bar hidden" id="bulbs-selection-bar">
+        <div class="action-tile-grid">
+          <button class="action-tile" id="selection-power-on-btn" title="Turn On" disabled>
+            <i class="mdi mdi-lightbulb-on"></i>
+            <span>On</span>
+          </button>
+          <button class="action-tile" id="selection-power-off-btn" title="Turn Off" disabled>
+            <i class="mdi mdi-lightbulb-off"></i>
+            <span>Off</span>
+          </button>
+          <button class="action-tile" id="selection-adjust-btn" title="Color & Brightness" disabled>
+            <i class="mdi mdi-palette"></i>
+            <span>Color</span>
+          </button>
+          <button class="action-tile" id="selection-preset-btn" title="Apply Preset" disabled>
+            <i class="mdi mdi-bookmark-check"></i>
+            <span>Preset</span>
+          </button>
+          <button class="action-tile" id="selection-effect-btn" title="Effect" disabled>
+            <i class="mdi mdi-creation"></i>
+            <span>Effect</span>
+          </button>
+        </div>
+      </div>
+
       <div class="device-list" id="bulbs-device-list"></div>
     </div>
   </div>
@@ -62,7 +102,7 @@
       </div>
       <div class="modal-scroll-list" id="preset-picker-list"></div>
       <div class="empty-state hidden" id="preset-picker-empty-state">
-        <i class="mdi mdi-palette-swatch-outline"></i>
+        <i class="mdi mdi-bookmark-multiple-outline"></i>
         <span>No presets yet — save one from a bulb first.</span>
       </div>
     </div>
@@ -77,6 +117,83 @@
         </button>
       </div>
       <div class="info-list modal-scroll-list" id="bulb-details-list"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="light-control-overlay">
+    <div class="modal-panel">
+      <div class="modal-panel-header">
+        <span id="light-control-title">Light</span>
+        <button class="modal-close-btn" id="light-control-close-btn">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+        <div class="control-row">
+          <div class="control-label"><i class="mdi mdi-brightness-6"></i><span>Brightness</span></div>
+          <span class="control-value" data-role="brightness-value">100%</span>
+        </div>
+        <input type="range" class="range-slider brightness-slider" data-role="brightness-slider" min="1" max="100" value="100" />
+
+        <div class="mode-toggle" data-role="mode-toggle">
+          <button type="button" class="mode-toggle-btn active" data-mode="color">
+            <i class="mdi mdi-palette"></i><span>Color</span>
+          </button>
+          <button type="button" class="mode-toggle-btn" data-mode="white">
+            <i class="mdi mdi-white-balance-sunny"></i><span>White</span>
+          </button>
+          <button type="button" class="mode-toggle-btn" data-mode="effect">
+            <i class="mdi mdi-creation"></i><span>Effect</span>
+          </button>
+        </div>
+
+        <div class="color-picker-row">
+          <div class="color-wheel-wrap" data-role="wheel-wrap">
+            <canvas data-role="color-wheel" width="220" height="220"></canvas>
+            <div class="wheel-cursor"></div>
+          </div>
+          <div class="control-row">
+            <span class="control-label"><i class="mdi mdi-eyedropper-variant"></i><span>Color</span></span>
+            <span class="control-value color-hex-value" data-role="color-hex">#FFFFFF</span>
+          </div>
+        </div>
+
+        <div class="color-temp-row hidden">
+          <div class="control-row">
+            <div class="control-label"><i class="mdi mdi-thermometer"></i><span>White Temp</span></div>
+            <span class="control-value" data-role="temp-value">4000K</span>
+          </div>
+          <input type="range" class="range-slider color-temp-slider" data-role="temp-slider" min="2000" max="6500" step="50" value="4000" />
+        </div>
+
+        <div class="effect-row hidden">
+          <div class="effect-option-grid">
+            <button type="button" class="effect-option-btn" data-effect="off">
+              <i class="mdi mdi-lightbulb-off-outline"></i><span>Off</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="breathing">
+              <i class="mdi mdi-weather-night"></i><span>Breathing</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="candlelight">
+              <i class="mdi mdi-candle"></i><span>Candlelight</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="fading">
+              <i class="mdi mdi-waves"></i><span>Fading</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="flash">
+              <i class="mdi mdi-flash"></i><span>Flash</span>
+            </button>
+            <button type="button" class="effect-option-btn effect-option-rainbow" data-effect="rainbow">
+              <i class="mdi mdi-gradient-horizontal"></i><span>Rainbow</span>
+            </button>
+          </div>
+          <div class="control-row">
+            <div class="control-label"><i class="mdi mdi-speedometer"></i><span>Speed</span></div>
+            <span class="control-value" data-role="effect-speed-value">50%</span>
+          </div>
+          <input type="range" class="range-slider effect-speed-slider" data-role="effect-speed-slider" min="0" max="100" value="50" />
+        </div>
+      </div>
     </div>
   </div>
 

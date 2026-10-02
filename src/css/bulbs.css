@@ -14,14 +14,129 @@
 .back-btn i { font-size: 22px; }
 .back-btn:active { opacity: 0.6; }
 
-.bulb-icon i { color: var(--warning); }
-
-.device-row-actions {
-  display: flex;
-  margin-top: 4px;
+/* Neutral until real state loads (avoids a misleading "yellow" flash before
+   the live color is known) and smoothly eases between colors once it is. */
+.bulb-icon i {
+  color: var(--text-tertiary);
+  transition: color 0.4s ease;
 }
-.device-row-actions > * + * { margin-left: 10px; }
-.device-row-actions > * { flex: 1; }
+
+/* Soft resting glow while on, plus a one-shot "power-up" bloom (.igniting)
+   that plays only when the color actually changes — see setBulbIconColor(). */
+.bulb-icon i.is-on {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+.bulb-icon i.igniting {
+  animation: bulb-ignite 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes bulb-ignite {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+    transform: scale(0.8);
+  }
+  45% {
+    filter: drop-shadow(0 0 10px currentColor);
+    transform: scale(1.18);
+  }
+  100% {
+    filter: drop-shadow(0 0 4px currentColor);
+    transform: scale(1);
+  }
+}
+
+/* Always visible now (not gated behind a separate "select mode") — tapping
+   a bulb's own dot is the entry point into multi-select. */
+.select-check-btn {
+  display: flex;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+}
+.select-check-btn i { font-size: 20px; }
+.select-check-btn.selected { color: var(--accent); }
+
+/* ---- Lights section row: the label plus a Select All toggle for the list
+   directly below it. ---- */
+
+.section-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-row .section-label {
+  margin-bottom: 0;
+}
+
+.select-all-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.select-all-btn > * + * { margin-left: 6px; }
+.select-all-btn i { font-size: 17px; }
+.select-all-btn.active { color: var(--accent); }
+.select-all-btn.active i { color: var(--accent); }
+
+/* ---- Multi-select toolbar ---- */
+
+.selection-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  padding: 8px 10px;
+  margin-bottom: 14px;
+}
+
+/* A selection toolbar is transient chrome, not page content — on a phone it
+   should read in one compact row (like Gmail/Photos' selection bar), not the
+   taller, more generously-padded 2-col grid the per-bulb accordion actions use.
+   Dividers are short centered ticks (via ::before), not full-height borders. */
+.selection-bar .action-tile-grid {
+  flex-wrap: nowrap;
+  border-top: none;
+  margin: 0 -4px;
+  width: calc(100% + 8px);
+}
+.selection-bar .action-tile {
+  position: relative;
+  width: auto;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 2px;
+}
+.selection-bar .action-tile-grid .action-tile:nth-child(odd),
+.selection-bar .action-tile-grid .action-tile:nth-child(n+3) {
+  border: none;
+}
+.selection-bar .action-tile:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 1px;
+  background: var(--border);
+}
+.selection-bar .action-tile i { font-size: 17px; }
+.selection-bar .action-tile span { font-size: 10px; }
 
 .btn-secondary {
   background: var(--bg-card);
@@ -35,13 +150,247 @@
 .btn-secondary:active:not(:disabled) { background: var(--bg-card-hover); }
 .btn-secondary:disabled i { color: var(--text-tertiary); }
 
+/* ---- Action tiles: the four per-bulb actions (adjust / info / save / apply preset),
+   laid out as a flattened 2-col grid rather than a row of buttons so labels never
+   wrap or get clipped — same divider technique as .tile-grid in home.css. ---- */
+
+.action-tile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  margin-top: 14px;
+}
+
+.action-tile {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: none;
+  border: none;
+  padding: 16px 8px;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.action-tile > * + * { margin-top: 7px; }
+.action-tile i { font-size: 19px; color: var(--accent); }
+.action-tile span {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.action-tile:nth-child(odd) { border-right: 1px solid var(--border); }
+.action-tile:nth-child(n+3) { border-top: 1px solid var(--border); }
+.action-tile:active:not(:disabled) { background: var(--bg-card-hover); }
+.action-tile:disabled { opacity: 0.4; cursor: not-allowed; }
+.action-tile:disabled i { color: var(--text-tertiary); }
+
+/* ---- 4-per-row variant: the per-bulb accordion's 8 actions (power, color,
+   info, presets, effects, reset), two rows of four instead of four rows of
+   two — boxed/rounded container and tile sizing to match .effect-option-grid,
+   overriding the plain top-border-strip look of the base rules above. ---- */
+
+.action-tile-grid-4 {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.action-tile-grid-4 .action-tile {
+  width: 25%;
+  padding: 12px 8px;
+}
+.action-tile-grid-4 .action-tile i { font-size: 18px; }
+.action-tile-grid-4 .action-tile:nth-child(odd) { border-right: none; }
+.action-tile-grid-4 .action-tile:nth-child(n+3) { border-top: none; }
+.action-tile-grid-4 .action-tile:not(:nth-child(4n)) { border-right: 1px solid var(--border); }
+.action-tile-grid-4 .action-tile:nth-child(n+5) { border-top: 1px solid var(--border); }
+
+/* ---- Brightness / color / color-temp controls (light-control modal) ---- */
+
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.control-label {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.control-label > * + * { margin-left: 8px; }
+.control-label i { font-size: 16px; color: var(--accent); }
+
+.control-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--bg-input);
+  outline: none;
+  margin: 10px 0 0;
+}
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--bg-base);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.brightness-slider {
+  background: linear-gradient(90deg, var(--bg-input), var(--accent-light));
+}
+
+.color-temp-slider {
+  background: linear-gradient(90deg, #ff9d42, #fff3d6, #9ecbff);
+}
+
+.effect-speed-slider {
+  background: linear-gradient(90deg, var(--bg-input), var(--accent-light));
+}
+
+/* ---- Effect mode tab: 2-col grid of tappable effect buttons, same owl-spacing
+   convention as .action-tile-grid, sized for the modal rather than the accordion. ---- */
+
+.effect-option-grid {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.effect-option-btn {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: none;
+  border: none;
+  padding: 12px 8px;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.effect-option-btn > * + * { margin-top: 6px; }
+.effect-option-btn i { font-size: 18px; color: var(--accent); }
+.effect-option-btn span {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.effect-option-btn:nth-child(odd) { border-right: 1px solid var(--border); }
+.effect-option-btn:nth-child(n+3) { border-top: 1px solid var(--border); }
+.effect-option-btn:active { background: var(--bg-card-hover); }
+.effect-option-btn.active {
+  background: var(--accent-subtle);
+  color: var(--text-primary);
+}
+.effect-option-btn.active i { color: var(--accent); }
+
+.effect-row > * + * { margin-top: 14px; }
+
+.mode-toggle {
+  display: flex;
+  background: var(--bg-input);
+  border-radius: var(--r-md);
+  padding: 3px;
+}
+.mode-toggle > * + * { margin-left: 3px; }
+
+.mode-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 0;
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mode-toggle-btn > * + * { margin-left: 6px; }
+.mode-toggle-btn i { font-size: 15px; }
+.mode-toggle-btn.active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+.mode-toggle-btn.active i { color: var(--accent); }
+
+.color-picker-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.color-picker-row > * + * { margin-top: 14px; }
+
+.color-wheel-wrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  touch-action: none;
+}
+
+.color-wheel-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.wheel-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), var(--shadow-sm);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.color-picker-row .control-row {
+  width: 100%;
+}
+
+#light-control-overlay .modal-panel-body > * + * {
+  margin-top: 18px;
+}
+
 .preset-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 13px 4px;
   border-bottom: 1px solid var(--border);
-  animation: fadeUp 0.3s ease both;
 }
 .preset-row > * + * { margin-left: 10px; }
 

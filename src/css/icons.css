@@ -37,6 +37,10 @@
   content: "\F0CE1";
 }
 
+.mdi-backup-restore::before {
+  content: "\F006F";
+}
+
 .mdi-battery::before {
   content: "\F0079";
 }
@@ -53,12 +57,32 @@
   content: "\F0084";
 }
 
+.mdi-bookmark::before {
+  content: "\F00C0";
+}
+
+.mdi-bookmark-check::before {
+  content: "\F00C1";
+}
+
+.mdi-bookmark-multiple-outline::before {
+  content: "\F0E16";
+}
+
 .mdi-brightness-4::before {
   content: "\F00DD";
 }
 
+.mdi-brightness-6::before {
+  content: "\F00DF";
+}
+
 .mdi-brightness-7::before {
   content: "\F00E0";
+}
+
+.mdi-candle::before {
+  content: "\F05E2";
 }
 
 .mdi-check::before {
@@ -67,6 +91,14 @@
 
 .mdi-check-circle::before {
   content: "\F05E0";
+}
+
+.mdi-checkbox-blank-circle-outline::before {
+  content: "\F0130";
+}
+
+.mdi-checkbox-marked-circle::before {
+  content: "\F0133";
 }
 
 .mdi-chevron-down::before {
@@ -109,6 +141,14 @@
   content: "\F0209";
 }
 
+.mdi-eyedropper-variant::before {
+  content: "\F020B";
+}
+
+.mdi-flash::before {
+  content: "\F0241";
+}
+
 .mdi-garage-open-variant::before {
   content: "\F12D4";
 }
@@ -125,6 +165,14 @@
   content: "\F0741";
 }
 
+.mdi-gradient-horizontal::before {
+  content: "\F174A";
+}
+
+.mdi-information::before {
+  content: "\F02FC";
+}
+
 .mdi-information-outline::before {
   content: "\F02FD";
 }
@@ -139,6 +187,18 @@
 
 .mdi-lightbulb-group::before {
   content: "\F1253";
+}
+
+.mdi-lightbulb-off::before {
+  content: "\F0E4F";
+}
+
+.mdi-lightbulb-off-outline::before {
+  content: "\F0E50";
+}
+
+.mdi-lightbulb-on::before {
+  content: "\F06E8";
 }
 
 .mdi-lightning-bolt::before {
@@ -165,14 +225,6 @@
   content: "\F03D8";
 }
 
-.mdi-palette-swatch::before {
-  content: "\F08B5";
-}
-
-.mdi-palette-swatch-outline::before {
-  content: "\F135C";
-}
-
 .mdi-power::before {
   content: "\F0425";
 }
@@ -191,6 +243,10 @@
 
 .mdi-signal::before {
   content: "\F04A2";
+}
+
+.mdi-speedometer::before {
+  content: "\F04C5";
 }
 
 .mdi-star::before {
@@ -219,6 +275,18 @@
 
 .mdi-vibrate::before {
   content: "\F0566";
+}
+
+.mdi-waves::before {
+  content: "\F078D";
+}
+
+.mdi-weather-night::before {
+  content: "\F0594";
+}
+
+.mdi-white-balance-sunny::before {
+  content: "\F05A8";
 }
 
 @-webkit-keyframes mdi-spin {

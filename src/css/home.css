@@ -94,10 +94,6 @@
   margin: 0 auto;
 }
 
-#message-container {
-  margin-bottom: 14px;
-}
-
 /* ---- Garage hero: a free-floating circular control, deliberately NOT a card ---- */
 
 .garage-hero {
@@ -124,34 +120,24 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 5px 10px;
-  border-radius: var(--r-full);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  background: var(--bg-card);
   color: var(--text-tertiary);
 }
 .status-badge > * + * { margin-left: 5px; }
 
-#status-indicator {
-  background: none;
-  padding: 4px;
-}
 #status-indicator .mdi { font-size: 15px; }
 
 .status-badge.status-online {
   color: var(--success);
-  background: var(--success-subtle);
 }
 .status-badge.status-offline {
   color: var(--error);
-  background: var(--error-subtle);
 }
 .status-badge.status-checking {
   color: var(--accent);
-  background: var(--accent-subtle);
 }
 
 .status-dot {
@@ -628,6 +614,13 @@ details[open] .accordion-chevron {
   transform: translateX(100%);
   transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-footer {
+  margin-top: auto;
+  padding-top: 28px;
 }
 .menu-overlay.visible .menu-panel {
   transform: translateX(0);
