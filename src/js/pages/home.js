@@ -1,6 +1,7 @@
 import homeTemplate from "../../pages/home.html?raw";
 import { WebSocketService } from "../websocket.js";
 import { themeManager } from "../theme.js";
+import { toast } from "../toast.js";
 
 export class HomePage {
   constructor(container, authService, apiService, onLogout, onNavigateToBulbs) {
@@ -433,22 +434,20 @@ export class HomePage {
     const triggerBtn = this.container.querySelector("#garage-trigger-btn");
     const openBtn = this.container.querySelector("#open-btn");
     const closeBtn = this.container.querySelector("#close-btn");
-    const messageContainer = this.container.querySelector("#message-container");
 
     this.triggerInProgress = true;
     triggerBtn.disabled = true;
     openBtn.disabled = true;
     closeBtn.disabled = true;
-    messageContainer.innerHTML = "";
 
     try {
       await this.apiService.triggerGarage(this.authService.getAccessToken());
-      this.showSuccessMessage(messageContainer, "Garage door triggered successfully!");
+      this.showSuccessMessage("Garage door triggered successfully!");
     } catch (error) {
       if (error.message === "TOKEN_EXPIRED") {
-        await this.handleTokenExpiredDuringAction(messageContainer, () => this.apiService.triggerGarage(this.authService.getAccessToken()));
+        await this.handleTokenExpiredDuringAction(() => this.apiService.triggerGarage(this.authService.getAccessToken()));
       } else {
-        this.showErrorMessage(messageContainer, error.message);
+        this.showErrorMessage(error.message);
       }
     } finally {
       this.triggerInProgress = false;
@@ -464,20 +463,18 @@ export class HomePage {
     if (!this.garageOnline) return;
 
     const resetBtn = this.container.querySelector("#reset-btn");
-    const messageContainer = this.container.querySelector("#message-container");
 
     resetBtn.disabled = true;
-    messageContainer.innerHTML = "";
 
     try {
       await this.apiService.resetGarageState(this.authService.getAccessToken());
-      this.showSuccessMessage(messageContainer, "State reset successfully!");
+      this.showSuccessMessage("State reset successfully!");
       setTimeout(() => this.checkGarageStatus(), 1000);
     } catch (error) {
       if (error.message === "TOKEN_EXPIRED") {
-        await this.handleTokenExpiredDuringAction(messageContainer, () => this.apiService.resetGarageState(this.authService.getAccessToken()));
+        await this.handleTokenExpiredDuringAction(() => this.apiService.resetGarageState(this.authService.getAccessToken()));
       } else {
-        this.showErrorMessage(messageContainer, error.message);
+        this.showErrorMessage(error.message);
       }
     } finally {
       if (this.garageOnline) resetBtn.disabled = false;
@@ -488,25 +485,23 @@ export class HomePage {
     if (!this.garageOnline) return;
 
     const plugToggle = this.container.querySelector("#plug-state-value");
-    const messageContainer = this.container.querySelector("#message-container");
 
     plugToggle.disabled = true;
-    messageContainer.innerHTML = "";
 
     try {
       if (turnOn) {
         await this.apiService.turnPlugOn(this.authService.getAccessToken());
-        this.showSuccessMessage(messageContainer, "Plug turned ON!");
+        this.showSuccessMessage("Plug turned ON!");
       } else {
         await this.apiService.turnPlugOff(this.authService.getAccessToken());
-        this.showSuccessMessage(messageContainer, "Plug turned OFF!");
+        this.showSuccessMessage("Plug turned OFF!");
       }
     } catch (error) {
       plugToggle.checked = !turnOn;
       if (error.message === "TOKEN_EXPIRED") {
-        await this.handleTokenExpiredDuringAction(messageContainer, () => (turnOn ? this.apiService.turnPlugOn(this.authService.getAccessToken()) : this.apiService.turnPlugOff(this.authService.getAccessToken())));
+        await this.handleTokenExpiredDuringAction(() => (turnOn ? this.apiService.turnPlugOn(this.authService.getAccessToken()) : this.apiService.turnPlugOff(this.authService.getAccessToken())));
       } else {
-        this.showErrorMessage(messageContainer, error.message);
+        this.showErrorMessage(error.message);
       }
     } finally {
       if (this.garageOnline) {
@@ -515,41 +510,28 @@ export class HomePage {
     }
   }
 
-  async handleTokenExpiredDuringAction(messageContainer, retryAction) {
+  async handleTokenExpiredDuringAction(retryAction) {
     const reLoginSuccess = await this.authService.handleTokenExpired();
 
     if (reLoginSuccess) {
       this.refreshWebSocketConnection();
       try {
         await retryAction();
-        this.showSuccessMessage(messageContainer, "Action completed successfully!");
+        this.showSuccessMessage("Action completed successfully!");
       } catch (retryError) {
-        this.showErrorMessage(messageContainer, retryError.message);
+        this.showErrorMessage(retryError.message);
       }
     } else {
       this.onLogout();
     }
   }
 
-  showSuccessMessage(container, message) {
-    container.innerHTML = `
-      <div class="success-message">
-        <i class="mdi mdi-check-circle"></i>
-        <span>${message}</span>
-      </div>
-    `;
-    setTimeout(() => {
-      container.innerHTML = "";
-    }, 3000);
+  showSuccessMessage(message) {
+    toast.show("success", message);
   }
 
-  showErrorMessage(container, message) {
-    container.innerHTML = `
-      <div class="error-message">
-        <i class="mdi mdi-alert-circle"></i>
-        <span>${message}</span>
-      </div>
-    `;
+  showErrorMessage(message) {
+    toast.show("error", message);
   }
 
   setupPullToRefresh() {

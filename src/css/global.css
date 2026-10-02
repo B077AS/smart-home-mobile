@@ -248,6 +248,56 @@ body {
   color: var(--accent-light);
 }
 
+/* ---- Toast notifications: Android Snackbar-style — anchored to the bottom
+   (not the header, which it would otherwise sit on top of) in #toast-root (a
+   sibling of #app that survives page swaps), so action feedback never shifts
+   page content the way an inline message div does. A solid elevated card, not
+   the subtle/translucent .success-message-style tint — that tint is meant to
+   sit on an existing page background, not stand on its own as a floating
+   surface, which is what read as washed-out/transparent. ---- */
+
+.toast-root {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+  pointer-events: none;
+}
+.toast-root > * + * { margin-top: 8px; }
+
+.toast {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 420px;
+  padding: 14px var(--sp-md);
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toast > * + * { margin-left: var(--sp-sm); }
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast i { font-size: 18px; }
+.toast-success i { color: var(--success); }
+.toast-error i { color: var(--error); }
+.toast-info i { color: var(--accent-light); }
+
 .hidden {
   display: none !important;
 }

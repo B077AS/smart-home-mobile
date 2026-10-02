@@ -169,6 +169,10 @@
   content: "\F174A";
 }
 
+.mdi-information::before {
+  content: "\F02FC";
+}
+
 .mdi-information-outline::before {
   content: "\F02FD";
 }

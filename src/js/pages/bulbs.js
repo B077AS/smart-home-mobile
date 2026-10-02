@@ -1,4 +1,5 @@
 import bulbsTemplate from "../../pages/bulbs.html?raw";
+import { toast } from "../toast.js";
 
 const KNOWN_BULBS = [
   { deviceName: "OfficeLight1", label: "Office Light 1" },
@@ -295,16 +296,15 @@ export class BulbsPage {
     const devices = Array.from(this.selectedDevices);
     if (devices.length === 0) return;
 
-    const messageContainer = this.container.querySelector("#bulbs-message-container");
 
     try {
       await this.runWithTokenRetry(() =>
         Promise.all(devices.map((d) => this.apiService.setLightPower(this.authService.getAccessToken(), d, turnOn))),
       );
-      this.showMessage(messageContainer, "success", `${devices.length} light${devices.length > 1 ? "s" : ""} turned ${turnOn ? "ON" : "OFF"}`);
+      this.showMessage("success", `${devices.length} light${devices.length > 1 ? "s" : ""} turned ${turnOn ? "ON" : "OFF"}`);
       setTimeout(() => this.loadLightStates(), 1000);
     } catch (error) {
-      this.showMessage(messageContainer, "error", error.message);
+      this.showMessage("error", error.message);
     }
   }
 
@@ -659,7 +659,7 @@ export class BulbsPage {
       );
       setTimeout(() => this.loadLightStates(), 800);
     } catch (error) {
-      this.showMessage(this.container.querySelector("#bulbs-message-container"), "error", error.message);
+      this.showMessage("error", error.message);
     }
   }
 
@@ -768,7 +768,6 @@ export class BulbsPage {
 
   async resetDevicesToDefault(devices, btn) {
     if (!devices || devices.length === 0) return;
-    const messageContainer = this.container.querySelector("#bulbs-message-container");
     if (btn) btn.disabled = true;
 
     try {
@@ -777,10 +776,10 @@ export class BulbsPage {
       );
       devices.forEach((d) => { this.lastEffect[d] = "off"; });
       const target = devices.length === 1 ? this.getBulbLabel(devices[0]) : `${devices.length} lights`;
-      this.showMessage(messageContainer, "success", `${target} reset to default preset`);
+      this.showMessage("success", `${target} reset to default preset`);
       setTimeout(() => this.loadLightStates(), 1000);
     } catch (error) {
-      this.showMessage(messageContainer, "error", error.message);
+      this.showMessage("error", error.message);
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -905,7 +904,7 @@ export class BulbsPage {
       this.closeConfirmDeleteModal();
       this.loadPresets();
     } catch (error) {
-      this.showMessage(this.container.querySelector("#bulbs-message-container"), "error", error.message);
+      this.showMessage("error", error.message);
     } finally {
       confirmBtn.disabled = false;
     }
@@ -1053,7 +1052,6 @@ export class BulbsPage {
 
   async handleRefresh() {
     const refreshBtn = this.container.querySelector("#bulbs-refresh-btn");
-    const messageContainer = this.container.querySelector("#bulbs-message-container");
     refreshBtn.disabled = true;
     refreshBtn.querySelector("i").classList.add("spin");
 
@@ -1064,9 +1062,9 @@ export class BulbsPage {
       // toast so the action doesn't look like a no-op when nothing had changed.
       await new Promise((resolve) => setTimeout(resolve, 1200));
       await this.loadLightStates();
-      this.showMessage(messageContainer, "success", "Lights refreshed");
+      this.showMessage("success", "Lights refreshed");
     } catch (error) {
-      this.showMessage(messageContainer, "error", error.message);
+      this.showMessage("error", error.message);
     } finally {
       refreshBtn.disabled = false;
       refreshBtn.querySelector("i").classList.remove("spin");
@@ -1074,15 +1072,14 @@ export class BulbsPage {
   }
 
   async handlePowerButtonClick(deviceName, turnOn, btn) {
-    const messageContainer = this.container.querySelector("#bulbs-message-container");
     btn.disabled = true;
 
     try {
       await this.runWithTokenRetry(() => this.apiService.setLightPower(this.authService.getAccessToken(), deviceName, turnOn));
-      this.showMessage(messageContainer, "success", `${this.getBulbLabel(deviceName)} turned ${turnOn ? "ON" : "OFF"}`);
+      this.showMessage("success", `${this.getBulbLabel(deviceName)} turned ${turnOn ? "ON" : "OFF"}`);
       setTimeout(() => this.loadLightStates(), 1000);
     } catch (error) {
-      this.showMessage(messageContainer, "error", error.message);
+      this.showMessage("error", error.message);
     } finally {
       btn.disabled = false;
     }
@@ -1105,7 +1102,6 @@ export class BulbsPage {
   async confirmSavePreset() {
     const input = this.container.querySelector("#preset-name-input");
     const name = input.value.trim();
-    const messageContainer = this.container.querySelector("#bulbs-message-container");
 
     if (!name || !this.pendingPresetDevice) return;
 
@@ -1117,10 +1113,10 @@ export class BulbsPage {
         this.apiService.createPreset(this.authService.getAccessToken(), this.pendingPresetDevice, name),
       );
       this.closePresetModal();
-      this.showMessage(messageContainer, "success", `Preset "${name}" saved`);
+      this.showMessage("success", `Preset "${name}" saved`);
       this.loadPresets();
     } catch (error) {
-      this.showMessage(messageContainer, "error", error.message);
+      this.showMessage("error", error.message);
     } finally {
       confirmBtn.disabled = false;
     }
@@ -1200,7 +1196,6 @@ export class BulbsPage {
   }
 
   async handleApplyPreset(presetId) {
-    const messageContainer = this.container.querySelector("#bulbs-message-container");
     const devices = this.pendingApplyDevices;
     if (devices.length === 0) return;
 
@@ -1210,10 +1205,10 @@ export class BulbsPage {
       );
       this.closePresetPicker();
       const target = devices.length === 1 ? this.getBulbLabel(devices[0]) : `${devices.length} lights`;
-      this.showMessage(messageContainer, "success", `Preset applied to ${target}`);
+      this.showMessage("success", `Preset applied to ${target}`);
       setTimeout(() => this.loadLightStates(), 1200);
     } catch (error) {
-      this.showMessage(messageContainer, "error", error.message);
+      this.showMessage("error", error.message);
     }
   }
 
@@ -1223,23 +1218,12 @@ export class BulbsPage {
       await this.runWithTokenRetry(() => this.apiService.setDefaultPreset(this.authService.getAccessToken(), id));
       this.loadPresets();
     } catch (error) {
-      this.showMessage(this.container.querySelector("#bulbs-message-container"), "error", error.message);
+      this.showMessage("error", error.message);
       btn.disabled = false;
     }
   }
 
-  showMessage(container, type, message) {
-    const icon = type === "success" ? "mdi-check-circle" : "mdi-alert-circle";
-    container.innerHTML = `
-      <div class="${type}-message">
-        <i class="mdi ${icon}"></i>
-        <span>${message}</span>
-      </div>
-    `;
-    if (type === "success") {
-      setTimeout(() => {
-        container.innerHTML = "";
-      }, 3000);
-    }
+  showMessage(type, message) {
+    toast.show(type, message);
   }
 }
