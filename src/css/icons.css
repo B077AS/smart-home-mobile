@@ -37,6 +37,10 @@
   content: "\F0CE1";
 }
 
+.mdi-backup-restore::before {
+  content: "\F006F";
+}
+
 .mdi-battery::before {
   content: "\F0079";
 }
@@ -75,6 +79,10 @@
 
 .mdi-brightness-7::before {
   content: "\F00E0";
+}
+
+.mdi-candle::before {
+  content: "\F05E2";
 }
 
 .mdi-check::before {
@@ -137,6 +145,10 @@
   content: "\F020B";
 }
 
+.mdi-flash::before {
+  content: "\F0241";
+}
+
 .mdi-garage-open-variant::before {
   content: "\F12D4";
 }
@@ -173,6 +185,10 @@
   content: "\F0E4F";
 }
 
+.mdi-lightbulb-off-outline::before {
+  content: "\F0E50";
+}
+
 .mdi-lightbulb-on::before {
   content: "\F06E8";
 }
@@ -201,6 +217,10 @@
   content: "\F03D8";
 }
 
+.mdi-palette-swatch::before {
+  content: "\F08B5";
+}
+
 .mdi-power::before {
   content: "\F0425";
 }
@@ -219,6 +239,10 @@
 
 .mdi-signal::before {
   content: "\F04A2";
+}
+
+.mdi-speedometer::before {
+  content: "\F04C5";
 }
 
 .mdi-star::before {
@@ -247,6 +271,14 @@
 
 .mdi-vibrate::before {
   content: "\F0566";
+}
+
+.mdi-waves::before {
+  content: "\F078D";
+}
+
+.mdi-weather-night::before {
+  content: "\F0594";
 }
 
 .mdi-white-balance-sunny::before {

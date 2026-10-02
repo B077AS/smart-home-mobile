@@ -321,6 +321,33 @@ export class ApiService {
     }
   }
 
+  async resetLightToDefault(accessToken, deviceName) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights/${deviceName}/reset-to-default`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to reset light to default preset");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API: Reset light to default error:", error);
+      throw error;
+    }
+  }
+
   async setLightState(accessToken, deviceName, settings) {
     try {
       const response = await fetch(`${this.baseUrl}/api/devices/lights/${deviceName}/state`, {

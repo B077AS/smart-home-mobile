@@ -60,6 +60,10 @@
             <i class="mdi mdi-bookmark-check"></i>
             <span>Preset</span>
           </button>
+          <button class="action-tile" id="selection-effect-btn" title="Effect" disabled>
+            <i class="mdi mdi-creation"></i>
+            <span>Effect</span>
+          </button>
         </div>
       </div>
 
@@ -140,6 +144,9 @@
           <button type="button" class="mode-toggle-btn" data-mode="white">
             <i class="mdi mdi-white-balance-sunny"></i><span>White</span>
           </button>
+          <button type="button" class="mode-toggle-btn" data-mode="effect">
+            <i class="mdi mdi-creation"></i><span>Effect</span>
+          </button>
         </div>
 
         <div class="color-picker-row">
@@ -159,6 +166,34 @@
             <span class="control-value" data-role="temp-value">4000K</span>
           </div>
           <input type="range" class="range-slider color-temp-slider" data-role="temp-slider" min="2000" max="6500" step="50" value="4000" />
+        </div>
+
+        <div class="effect-row hidden">
+          <div class="effect-option-grid">
+            <button type="button" class="effect-option-btn" data-effect="off">
+              <i class="mdi mdi-lightbulb-off-outline"></i><span>Off</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="breathing">
+              <i class="mdi mdi-weather-night"></i><span>Breathing</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="candlelight">
+              <i class="mdi mdi-candle"></i><span>Candlelight</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="fading">
+              <i class="mdi mdi-waves"></i><span>Fading</span>
+            </button>
+            <button type="button" class="effect-option-btn" data-effect="flash">
+              <i class="mdi mdi-flash"></i><span>Flash</span>
+            </button>
+            <button type="button" class="effect-option-btn effect-option-rainbow" data-effect="rainbow">
+              <i class="mdi mdi-palette-swatch"></i><span>Rainbow</span>
+            </button>
+          </div>
+          <div class="control-row">
+            <div class="control-label"><i class="mdi mdi-speedometer"></i><span>Speed</span></div>
+            <span class="control-value" data-role="effect-speed-value">50%</span>
+          </div>
+          <input type="range" class="range-slider effect-speed-slider" data-role="effect-speed-slider" min="0" max="100" value="50" />
         </div>
       </div>
     </div>

@@ -243,6 +243,53 @@
   background: linear-gradient(90deg, #ff9d42, #fff3d6, #9ecbff);
 }
 
+.effect-speed-slider {
+  background: linear-gradient(90deg, var(--bg-input), var(--accent-light));
+}
+
+/* ---- Effect mode tab: 2-col grid of tappable effect buttons, same owl-spacing
+   convention as .action-tile-grid, sized for the modal rather than the accordion. ---- */
+
+.effect-option-grid {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.effect-option-btn {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: none;
+  border: none;
+  padding: 12px 8px;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.effect-option-btn > * + * { margin-top: 6px; }
+.effect-option-btn i { font-size: 18px; color: var(--accent); }
+.effect-option-btn span {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.effect-option-btn:nth-child(odd) { border-right: 1px solid var(--border); }
+.effect-option-btn:nth-child(n+3) { border-top: 1px solid var(--border); }
+.effect-option-btn:active { background: var(--bg-card-hover); }
+.effect-option-btn.active {
+  background: var(--accent-subtle);
+  color: var(--text-primary);
+}
+.effect-option-btn.active i { color: var(--accent); }
+
+.effect-row > * + * { margin-top: 14px; }
+
 .mode-toggle {
   display: flex;
   background: var(--bg-input);

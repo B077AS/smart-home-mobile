@@ -5,6 +5,19 @@ const KNOWN_BULBS = [
   { deviceName: "OfficeLight2", label: "Office Light 2" },
 ];
 
+// Not a real Zigbee2MQTT effect value — a synthetic preset that asks for the
+// "fading" effect (which cycles through effect_colors) seeded with a rainbow
+// palette, since the bulb has no native rainbow mode.
+const RAINBOW_COLORS = [
+  { r: 255, g: 0, b: 0 },
+  { r: 255, g: 127, b: 0 },
+  { r: 255, g: 255, b: 0 },
+  { r: 0, g: 255, b: 0 },
+  { r: 0, g: 0, b: 255 },
+  { r: 75, g: 0, b: 130 },
+  { r: 148, g: 0, b: 211 },
+];
+
 const COLOR_TEMP_MIN_KELVIN = 2000;
 const COLOR_TEMP_MAX_KELVIN = 6500;
 // Matches .color-wheel-wrap's fixed CSS size (and the canvas width/height) —
@@ -48,6 +61,7 @@ export class BulbsPage {
     // absent) device state for the inactive mode.
     this.lastColorHex = {};
     this.lastColorTemp = {};
+    this.lastEffect = {};
 
     // Tracks the bulb-icon color last actually applied per device, so the
     // "ignite" glow animation only plays on a real on/color change — not on
@@ -118,6 +132,14 @@ export class BulbsPage {
                 <i class="mdi mdi-bookmark-check"></i>
                 <span>Apply Preset</span>
               </button>
+              <button class="action-tile" data-action="effects" data-device="${bulb.deviceName}" disabled>
+                <i class="mdi mdi-creation"></i>
+                <span>Effects</span>
+              </button>
+              <button class="action-tile" data-action="reset-default" data-device="${bulb.deviceName}" disabled>
+                <i class="mdi mdi-backup-restore"></i>
+                <span>Reset</span>
+              </button>
             </div>
           </div>
         </details>
@@ -173,6 +195,10 @@ export class BulbsPage {
         this.openPresetModal(deviceName);
       } else if (action === "apply-preset") {
         this.openPresetPicker(deviceName);
+      } else if (action === "effects") {
+        this.openLightControlModal(deviceName, "effect");
+      } else if (action === "reset-default") {
+        this.handleResetToDefault(deviceName, btn);
       }
     });
 
@@ -195,6 +221,7 @@ export class BulbsPage {
     const offBtn = this.container.querySelector("#selection-power-off-btn");
     const adjustBtn = this.container.querySelector("#selection-adjust-btn");
     const presetBtn = this.container.querySelector("#selection-preset-btn");
+    const effectBtn = this.container.querySelector("#selection-effect-btn");
 
     onBtn.addEventListener("click", () => this.handleGroupPower(true));
     offBtn.addEventListener("click", () => this.handleGroupPower(false));
@@ -205,6 +232,10 @@ export class BulbsPage {
     presetBtn.addEventListener("click", () => {
       if (this.selectedDevices.size === 0) return;
       this.openPresetPicker(Array.from(this.selectedDevices));
+    });
+    effectBtn.addEventListener("click", () => {
+      if (this.selectedDevices.size === 0) return;
+      this.openLightControlModal(Array.from(this.selectedDevices), "effect");
     });
   }
 
@@ -255,6 +286,7 @@ export class BulbsPage {
     this.container.querySelector("#selection-power-off-btn").disabled = count === 0;
     this.container.querySelector("#selection-adjust-btn").disabled = count === 0;
     this.container.querySelector("#selection-preset-btn").disabled = count === 0;
+    this.container.querySelector("#selection-effect-btn").disabled = count === 0;
 
     const selectAllBtn = this.container.querySelector("#bulbs-select-all-btn");
     const allSelected = count > 0 && count === KNOWN_BULBS.length;
@@ -356,6 +388,8 @@ export class BulbsPage {
     const modeToggle = overlay.querySelector('[data-role="mode-toggle"]');
     const tempSlider = overlay.querySelector('[data-role="temp-slider"]');
     const wrap = overlay.querySelector('[data-role="wheel-wrap"]');
+    const effectGrid = overlay.querySelector(".effect-option-grid");
+    const effectSpeedSlider = overlay.querySelector('[data-role="effect-speed-slider"]');
 
     closeBtn.addEventListener("click", () => this.closeLightControlModal());
     overlay.addEventListener("click", (e) => {
@@ -384,19 +418,49 @@ export class BulbsPage {
 
     this.drawColorWheel(overlay.querySelector('[data-role="color-wheel"]'));
     this.setupColorWheelDrag(wrap, (hex) => this.handleColorChange(this.pendingControlDevices, hex));
+
+    effectGrid.addEventListener("click", (e) => {
+      const btn = e.target.closest(".effect-option-btn");
+      if (!btn) return;
+      effectGrid.querySelectorAll(".effect-option-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      this.handleEffectChange(this.pendingControlDevices, btn.getAttribute("data-effect"));
+    });
+
+    effectSpeedSlider.addEventListener("input", () => {
+      overlay.querySelector('[data-role="effect-speed-value"]').textContent = `${effectSpeedSlider.value}%`;
+    });
+    effectSpeedSlider.addEventListener("change", () => {
+      this.handleEffectSpeedChange(this.pendingControlDevices, Number(effectSpeedSlider.value));
+    });
   }
 
-  openLightControlModal(deviceNameOrNames) {
+  openLightControlModal(deviceNameOrNames, initialMode) {
     const devices = Array.isArray(deviceNameOrNames) ? deviceNameOrNames : [deviceNameOrNames];
     this.pendingControlDevices = devices;
     const overlay = this.container.querySelector("#light-control-overlay");
     this.container.querySelector("#light-control-title").textContent =
       devices.length === 1 ? this.getBulbLabel(devices[0]) : `${devices.length} Lights`;
 
+    // Seed each device's known effect from its live state the first time we see
+    // it, so a color/white/brightness change made without ever opening the
+    // Effect tab this session still knows an effect is running and needs to be
+    // kept, instead of silently cancelling it.
+    devices.forEach((d) => {
+      if (this.lastEffect[d] === undefined) {
+        this.lastEffect[d] = (this.lightStates[d] || {}).effect;
+      }
+    });
+
     // Multiple devices may currently differ — the first selected device's state is
     // just the starting point shown in the modal; every slider/color change still
     // gets sent to all selected devices together.
-    this.populateColorControls(overlay, this.lightStates[devices[0]] || {}, devices[0]);
+    const state = this.lightStates[devices[0]] || {};
+    this.populateColorControls(overlay, state, devices[0]);
+
+    if (initialMode === "effect") {
+      this.populateEffectControls(overlay, state);
+      this.setLightControlMode(overlay, "effect");
+    }
 
     overlay.classList.add("visible");
   }
@@ -454,14 +518,22 @@ export class BulbsPage {
     });
     root.querySelector(".color-picker-row").classList.toggle("hidden", mode !== "color");
     root.querySelector(".color-temp-row").classList.toggle("hidden", mode !== "white");
+    root.querySelector(".effect-row").classList.toggle("hidden", mode !== "effect");
   }
 
   // Clicking a mode tab doesn't just swap which controls are visible — it actually
   // switches the bulb's color mode, re-sending whichever value (color or white
   // temp) was last used so the device genuinely changes instead of just the UI.
+  // Switching into the Effect tab is the exception: there's no sensible "last
+  // effect" to blindly resend, so it just reveals the controls and waits for a tap.
   switchLightControlMode(root, devices, mode) {
     this.setLightControlMode(root, mode);
     if (!devices || devices.length === 0) return;
+
+    if (mode === "effect") {
+      this.populateEffectControls(root, this.lightStates[devices[0]] || {});
+      return;
+    }
 
     const deviceName = devices[0];
     if (mode === "white") {
@@ -474,6 +546,19 @@ export class BulbsPage {
       const hex = this.lastColorHex[deviceName] || root.querySelector(".color-hex-value").textContent;
       this.handleColorChange(devices, hex);
     }
+  }
+
+  populateEffectControls(root, state) {
+    const speed = typeof state.effect_speed === "number" ? state.effect_speed : 50;
+    const speedSlider = root.querySelector('[data-role="effect-speed-slider"]');
+    speedSlider.value = speed;
+    root.querySelector('[data-role="effect-speed-value"]').textContent = `${speed}%`;
+
+    // "rainbow" never matches — the device only ever reports one of the 5 real
+    // effect values, never the synthetic composite.
+    root.querySelectorAll(".effect-option-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.getAttribute("data-effect") === state.effect);
+    });
   }
 
   drawColorWheel(canvas) {
@@ -582,7 +667,24 @@ export class BulbsPage {
     }
   }
 
+  // An effect is "active" for these purposes once it's been explicitly chosen
+  // (or seeded from live device state) and isn't "off" — in that case brightness/
+  // color/temp changes must re-send the full effect bundle instead of a bare
+  // partial update, or they'd silently cancel the running effect.
+  activeEffectFor(deviceName) {
+    const effect = this.lastEffect[deviceName];
+    return effect && effect !== "off" ? effect : null;
+  }
+
+  currentEffectSpeed() {
+    return Number(this.container.querySelector('[data-role="effect-speed-slider"]').value);
+  }
+
   handleBrightnessChange(devices, percent) {
+    const activeEffect = this.activeEffectFor(devices[0]);
+    if (activeEffect) {
+      return this.applyLightSettings(devices, this.buildEffectPayload(devices[0], activeEffect, this.currentEffectSpeed()));
+    }
     // Send the raw ZCL level (0-254) rather than "brightness_percent" — that
     // convenience key isn't guaranteed to be wired up by every Zigbee2MQTT device
     // converter, while the raw level is supported by every dimmable Zigbee bulb.
@@ -591,12 +693,98 @@ export class BulbsPage {
 
   handleColorTempChange(devices, kelvin) {
     devices.forEach((d) => { this.lastColorTemp[d] = kelvin; });
+    const activeEffect = this.activeEffectFor(devices[0]);
+    if (activeEffect) {
+      devices.forEach((d) => { this.lastColorHex[d] = this.kelvinToHex(kelvin); });
+      return this.applyLightSettings(devices, this.buildEffectPayload(devices[0], activeEffect, this.currentEffectSpeed()));
+    }
     return this.applyLightSettings(devices, { color_temp: Math.round(1000000 / kelvin) });
   }
 
   handleColorChange(devices, hex) {
     devices.forEach((d) => { this.lastColorHex[d] = hex; });
+    const activeEffect = this.activeEffectFor(devices[0]);
+    if (activeEffect) {
+      return this.applyLightSettings(devices, this.buildEffectPayload(devices[0], activeEffect, this.currentEffectSpeed()));
+    }
     return this.applyLightSettings(devices, { color: { hex } });
+  }
+
+  // Aqara's firmware only reliably animates the effect when state/brightness/
+  // effect_colors ride along in the SAME /set payload as effect+effect_speed —
+  // a bare {"effect":"breathing"} is known to silently no-op on some units
+  // (confirmed against Zigbee2MQTT directly, not just this app). So every effect
+  // change always sends the full bundle, never just the effect key alone.
+  buildEffectPayload(deviceName, effect, speed) {
+    const realEffect = effect === "rainbow" ? "fading" : effect;
+    const colors = effect === "rainbow" ? RAINBOW_COLORS : this.effectColorsFor(deviceName);
+    const brightnessSlider = this.container.querySelector('[data-role="brightness-slider"]');
+    const brightness = Math.round((Number(brightnessSlider.value) / 100) * 254);
+
+    return {
+      state: "ON",
+      brightness,
+      effect: realEffect,
+      effect_speed: speed,
+      effect_colors: colors,
+    };
+  }
+
+  // "fading" (and friends) cross-fade/cycle THROUGH the effect_colors list — with
+  // only one color there's nothing to fade to, so it just sits static. Always
+  // hand back two stops: the chosen color and its complement (hue +180°), so
+  // every effect actually has somewhere to go.
+  effectColorsFor(deviceName) {
+    const hex = this.lastColorHex[deviceName] || "#ff8800";
+    const [r, g, b] = this.hexToRgb(hex);
+    const [hue, saturation] = this.rgbToHsv(r, g, b);
+    const complementHex = this.hsvToHex((hue + 180) % 360, Math.max(saturation, 40), 100);
+    const [cr, cg, cb] = this.hexToRgb(complementHex);
+    return [{ r, g, b }, { r: cr, g: cg, b: cb }];
+  }
+
+  // "Off" isn't a device effect worth sending — it means "stop doing effects",
+  // which this app treats as "go back to the default preset" rather than
+  // literally writing effect:"off" (which would just leave whatever color/
+  // brightness the effect last left behind).
+  handleEffectChange(devices, effect) {
+    if (!devices || devices.length === 0) return;
+    devices.forEach((d) => { this.lastEffect[d] = effect; });
+
+    if (effect === "off") {
+      return this.resetDevicesToDefault(devices);
+    }
+    return this.applyLightSettings(devices, this.buildEffectPayload(devices[0], effect, this.currentEffectSpeed()));
+  }
+
+  handleEffectSpeedChange(devices, speed) {
+    if (!devices || devices.length === 0) return;
+    const effect = this.lastEffect[devices[0]] || "breathing";
+    return this.applyLightSettings(devices, this.buildEffectPayload(devices[0], effect, speed));
+  }
+
+  async handleResetToDefault(deviceName, btn) {
+    return this.resetDevicesToDefault([deviceName], btn);
+  }
+
+  async resetDevicesToDefault(devices, btn) {
+    if (!devices || devices.length === 0) return;
+    const messageContainer = this.container.querySelector("#bulbs-message-container");
+    if (btn) btn.disabled = true;
+
+    try {
+      await this.runWithTokenRetry(() =>
+        Promise.all(devices.map((d) => this.apiService.resetLightToDefault(this.authService.getAccessToken(), d))),
+      );
+      devices.forEach((d) => { this.lastEffect[d] = "off"; });
+      const target = devices.length === 1 ? this.getBulbLabel(devices[0]) : `${devices.length} lights`;
+      this.showMessage(messageContainer, "success", `${target} reset to default preset`);
+      setTimeout(() => this.loadLightStates(), 1000);
+    } catch (error) {
+      this.showMessage(messageContainer, "error", error.message);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   }
 
   // Best-effort preview only — actual color commands are sent as hex and converted
@@ -759,12 +947,17 @@ export class BulbsPage {
     const toggle = row.querySelector('input[data-role="power-toggle"]');
     const saveBtn = row.querySelector('button[data-action="save-preset"]');
     const adjustBtn = row.querySelector('button[data-action="adjust"]');
+    const effectsBtn = row.querySelector('button[data-action="effects"]');
+    const resetBtn = row.querySelector('button[data-action="reset-default"]');
     const bulbIcon = row.querySelector(".bulb-icon i");
 
     const hasData = state && Object.keys(state).length > 0;
+    const hasDefaultPreset = this.presets.some((p) => p.default);
     saveBtn.disabled = !hasData;
     toggle.disabled = !hasData;
     adjustBtn.disabled = !hasData;
+    effectsBtn.disabled = !hasData;
+    resetBtn.disabled = !hasData || !hasDefaultPreset;
 
     if (!hasData) {
       badge.className = "status-badge status-checking";
@@ -957,6 +1150,9 @@ export class BulbsPage {
     try {
       this.presets = await this.runWithTokenRetry(() => this.apiService.listPresets(this.authService.getAccessToken()));
       this.renderPresetPicker();
+      // Whether a default preset exists affects the Reset tile's enabled state,
+      // independent of the light-state poll — refresh it for every known bulb.
+      KNOWN_BULBS.forEach((bulb) => this.updateBulbRow(bulb.deviceName, this.lightStates[bulb.deviceName] || {}));
     } catch (error) {
       console.warn("BulbsPage: Failed to load presets", error);
     }
