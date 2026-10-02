@@ -165,6 +165,10 @@
   content: "\F0741";
 }
 
+.mdi-gradient-horizontal::before {
+  content: "\F174A";
+}
+
 .mdi-information-outline::before {
   content: "\F02FD";
 }
@@ -215,10 +219,6 @@
 
 .mdi-palette::before {
   content: "\F03D8";
-}
-
-.mdi-palette-swatch::before {
-  content: "\F08B5";
 }
 
 .mdi-power::before {

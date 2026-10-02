@@ -105,32 +105,30 @@ export class BulbsPage {
             </div>
           </summary>
           <div class="device-row-body">
-            <div class="info-list">
-              <div class="info-row">
-                <span class="info-label"><i class="mdi mdi-power"></i><span>State</span></span>
-                <label class="toggle-switch">
-                  <input type="checkbox" data-role="power-toggle" data-device="${bulb.deviceName}" disabled />
-                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                </label>
-              </div>
-            </div>
-
-            <div class="action-tile-grid">
-              <button class="action-tile" data-action="adjust" data-device="${bulb.deviceName}" disabled>
+            <div class="action-tile-grid action-tile-grid-4">
+              <button class="action-tile" data-action="power-on" data-device="${bulb.deviceName}" disabled>
+                <i class="mdi mdi-lightbulb-on"></i>
+                <span>On</span>
+              </button>
+              <button class="action-tile" data-action="power-off" data-device="${bulb.deviceName}" disabled>
+                <i class="mdi mdi-lightbulb-off"></i>
+                <span>Off</span>
+              </button>
+              <button class="action-tile" data-action="adjust" data-device="${bulb.deviceName}" title="Color & Brightness" disabled>
                 <i class="mdi mdi-palette"></i>
-                <span>Color & Brightness</span>
+                <span>Color</span>
               </button>
               <button class="action-tile" data-action="details" data-device="${bulb.deviceName}">
                 <i class="mdi mdi-information-outline"></i>
                 <span>Info</span>
               </button>
-              <button class="action-tile" data-action="save-preset" data-device="${bulb.deviceName}" disabled>
+              <button class="action-tile" data-action="save-preset" data-device="${bulb.deviceName}" title="Save Preset" disabled>
                 <i class="mdi mdi-content-save-outline"></i>
-                <span>Save Preset</span>
+                <span>Save</span>
               </button>
-              <button class="action-tile" data-action="apply-preset" data-device="${bulb.deviceName}">
+              <button class="action-tile" data-action="apply-preset" data-device="${bulb.deviceName}" title="Apply Preset">
                 <i class="mdi mdi-bookmark-check"></i>
-                <span>Apply Preset</span>
+                <span>Apply</span>
               </button>
               <button class="action-tile" data-action="effects" data-device="${bulb.deviceName}" disabled>
                 <i class="mdi mdi-creation"></i>
@@ -199,13 +197,11 @@ export class BulbsPage {
         this.openLightControlModal(deviceName, "effect");
       } else if (action === "reset-default") {
         this.handleResetToDefault(deviceName, btn);
+      } else if (action === "power-on") {
+        this.handlePowerButtonClick(deviceName, true, btn);
+      } else if (action === "power-off") {
+        this.handlePowerButtonClick(deviceName, false, btn);
       }
-    });
-
-    deviceList.addEventListener("change", (e) => {
-      const toggle = e.target.closest('input[data-role="power-toggle"]');
-      if (!toggle) return;
-      this.handlePowerToggle(toggle.getAttribute("data-device"), toggle.checked, toggle);
     });
 
     this.setupSelectionBar();
@@ -717,7 +713,7 @@ export class BulbsPage {
   // change always sends the full bundle, never just the effect key alone.
   buildEffectPayload(deviceName, effect, speed) {
     const realEffect = effect === "rainbow" ? "fading" : effect;
-    const colors = effect === "rainbow" ? RAINBOW_COLORS : this.effectColorsFor(deviceName);
+    const colors = effect === "rainbow" ? RAINBOW_COLORS : this.effectColorsFor(deviceName, effect);
     const brightnessSlider = this.container.querySelector('[data-role="brightness-slider"]');
     const brightness = Math.round((Number(brightnessSlider.value) / 100) * 254);
 
@@ -730,13 +726,16 @@ export class BulbsPage {
     };
   }
 
-  // "fading" (and friends) cross-fade/cycle THROUGH the effect_colors list — with
-  // only one color there's nothing to fade to, so it just sits static. Always
-  // hand back two stops: the chosen color and its complement (hue +180°), so
-  // every effect actually has somewhere to go.
-  effectColorsFor(deviceName) {
+  // Only "fading" cross-fades THROUGH the effect_colors list, so it's the only
+  // one that needs a second stop to fade to — breathing/candlelight/flash pulse
+  // or flicker a single color, and jump jarringly between hues if handed two
+  // very different ones. So the complement-color trick is scoped to fading only.
+  effectColorsFor(deviceName, effect) {
     const hex = this.lastColorHex[deviceName] || "#ff8800";
     const [r, g, b] = this.hexToRgb(hex);
+    if (effect !== "fading") {
+      return [{ r, g, b }];
+    }
     const [hue, saturation] = this.rgbToHsv(r, g, b);
     const complementHex = this.hsvToHex((hue + 180) % 360, Math.max(saturation, 40), 100);
     const [cr, cg, cb] = this.hexToRgb(complementHex);
@@ -944,7 +943,8 @@ export class BulbsPage {
     if (!row) return;
 
     const badge = row.querySelector('[data-role="state-badge"]');
-    const toggle = row.querySelector('input[data-role="power-toggle"]');
+    const powerOnBtn = row.querySelector('button[data-action="power-on"]');
+    const powerOffBtn = row.querySelector('button[data-action="power-off"]');
     const saveBtn = row.querySelector('button[data-action="save-preset"]');
     const adjustBtn = row.querySelector('button[data-action="adjust"]');
     const effectsBtn = row.querySelector('button[data-action="effects"]');
@@ -954,7 +954,8 @@ export class BulbsPage {
     const hasData = state && Object.keys(state).length > 0;
     const hasDefaultPreset = this.presets.some((p) => p.default);
     saveBtn.disabled = !hasData;
-    toggle.disabled = !hasData;
+    powerOnBtn.disabled = !hasData;
+    powerOffBtn.disabled = !hasData;
     adjustBtn.disabled = !hasData;
     effectsBtn.disabled = !hasData;
     resetBtn.disabled = !hasData || !hasDefaultPreset;
@@ -969,7 +970,6 @@ export class BulbsPage {
     const isOn = state.state === "ON";
     badge.className = isOn ? "status-badge status-online" : "status-badge status-offline";
     badge.innerHTML = `<span class="status-dot"></span><span>${state.state || "Unknown"}</span>`;
-    toggle.checked = isOn;
 
     this.setBulbIconColor(deviceName, bulbIcon, isOn ? this.computeBulbColor(state) : null);
   }
@@ -1053,35 +1053,38 @@ export class BulbsPage {
 
   async handleRefresh() {
     const refreshBtn = this.container.querySelector("#bulbs-refresh-btn");
+    const messageContainer = this.container.querySelector("#bulbs-message-container");
     refreshBtn.disabled = true;
     refreshBtn.querySelector("i").classList.add("spin");
 
     try {
       await this.runWithTokenRetry(() => this.apiService.refreshLights(this.authService.getAccessToken()));
-      setTimeout(() => this.loadLightStates(), 1200);
+      // The refresh request just asks Zigbee2MQTT to re-report state — give it a
+      // beat to actually arrive over MQTT before re-polling, then confirm with a
+      // toast so the action doesn't look like a no-op when nothing had changed.
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await this.loadLightStates();
+      this.showMessage(messageContainer, "success", "Lights refreshed");
     } catch (error) {
-      this.showMessage(this.container.querySelector("#bulbs-message-container"), "error", error.message);
+      this.showMessage(messageContainer, "error", error.message);
     } finally {
-      setTimeout(() => {
-        refreshBtn.disabled = false;
-        refreshBtn.querySelector("i").classList.remove("spin");
-      }, 1200);
+      refreshBtn.disabled = false;
+      refreshBtn.querySelector("i").classList.remove("spin");
     }
   }
 
-  async handlePowerToggle(deviceName, turnOn, toggleEl) {
+  async handlePowerButtonClick(deviceName, turnOn, btn) {
     const messageContainer = this.container.querySelector("#bulbs-message-container");
-    toggleEl.disabled = true;
+    btn.disabled = true;
 
     try {
       await this.runWithTokenRetry(() => this.apiService.setLightPower(this.authService.getAccessToken(), deviceName, turnOn));
       this.showMessage(messageContainer, "success", `${this.getBulbLabel(deviceName)} turned ${turnOn ? "ON" : "OFF"}`);
       setTimeout(() => this.loadLightStates(), 1000);
     } catch (error) {
-      toggleEl.checked = !turnOn;
       this.showMessage(messageContainer, "error", error.message);
     } finally {
-      toggleEl.disabled = false;
+      btn.disabled = false;
     }
   }
 

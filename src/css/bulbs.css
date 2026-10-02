@@ -188,6 +188,26 @@
 .action-tile:disabled { opacity: 0.4; cursor: not-allowed; }
 .action-tile:disabled i { color: var(--text-tertiary); }
 
+/* ---- 4-per-row variant: the per-bulb accordion's 8 actions (power, color,
+   info, presets, effects, reset), two rows of four instead of four rows of
+   two — boxed/rounded container and tile sizing to match .effect-option-grid,
+   overriding the plain top-border-strip look of the base rules above. ---- */
+
+.action-tile-grid-4 {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.action-tile-grid-4 .action-tile {
+  width: 25%;
+  padding: 12px 8px;
+}
+.action-tile-grid-4 .action-tile i { font-size: 18px; }
+.action-tile-grid-4 .action-tile:nth-child(odd) { border-right: none; }
+.action-tile-grid-4 .action-tile:nth-child(n+3) { border-top: none; }
+.action-tile-grid-4 .action-tile:not(:nth-child(4n)) { border-right: 1px solid var(--border); }
+.action-tile-grid-4 .action-tile:nth-child(n+5) { border-top: 1px solid var(--border); }
+
 /* ---- Brightness / color / color-temp controls (light-control modal) ---- */
 
 .control-row {
