@@ -294,6 +294,59 @@ export class ApiService {
     }
   }
 
+  async getLightFades(accessToken) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights/fades`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to get fade times");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API: Get fade times error:", error);
+      throw error;
+    }
+  }
+
+  async setLightFade(accessToken, deviceName, seconds) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/devices/lights/${deviceName}/fade`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ seconds }),
+      });
+
+      if (response.status === 401) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save fade time");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API: Set fade time error:", error);
+      throw error;
+    }
+  }
+
   async setLightPower(accessToken, deviceName, on) {
     try {
       const response = await fetch(`${this.baseUrl}/api/devices/lights/${deviceName}/${on ? "on" : "off"}`, {

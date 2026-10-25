@@ -57,10 +57,6 @@
   content: "\F0084";
 }
 
-.mdi-bookmark::before {
-  content: "\F00C0";
-}
-
 .mdi-bookmark-check::before {
   content: "\F00C1";
 }
@@ -249,10 +245,6 @@
   content: "\F04C5";
 }
 
-.mdi-star::before {
-  content: "\F04CE";
-}
-
 .mdi-star-outline::before {
   content: "\F04D2";
 }
@@ -267,6 +259,10 @@
 
 .mdi-thermometer-lines::before {
   content: "\F0510";
+}
+
+.mdi-timer-outline::before {
+  content: "\F051B";
 }
 
 .mdi-trash-can-outline::before {

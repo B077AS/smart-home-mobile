@@ -55,6 +55,12 @@ export class BulbsPage {
     this.pendingDeleteId = null;
     this.pendingControlDevices = [];
     this.selectedDevices = new Set();
+    this.pendingFadeDevices = [];
+
+    // Per-device fade (Zigbee2MQTT "transition", in seconds). Stored on the server,
+    // which adds it to every command it sends to the bulb — this is only a mirror
+    // for display.
+    this.fades = {};
 
     // Per-device memory of the last color used in "Color" mode and the last
     // kelvin value used in "White" mode, so switching tabs restores + re-applies
@@ -76,6 +82,23 @@ export class BulbsPage {
     this.setupHandlers();
     this.loadLightStates();
     this.loadPresets();
+    this.loadFades();
+  }
+
+  async loadFades() {
+    try {
+      this.fades = await this.runWithTokenRetry(() => this.apiService.getLightFades(this.authService.getAccessToken()));
+    } catch (error) {
+      console.warn("BulbsPage: Failed to load fade times", error);
+    }
+  }
+
+  fadeFor(deviceName) {
+    return Number(this.fades[deviceName]) || 0;
+  }
+
+  formatFade(seconds) {
+    return seconds > 0 ? `${seconds} s` : "Instant";
   }
 
   getBulbLabel(deviceName) {
@@ -96,49 +119,43 @@ export class BulbsPage {
               <div class="device-icon bulb-icon">
                 <i class="mdi mdi-lightbulb"></i>
               </div>
-              <div class="device-row-name">${bulb.label}</div>
+              <div class="bulb-name-block">
+                <div class="device-row-name">${bulb.label}</div>
+                <div class="bulb-summary" data-role="summary">Checking…</div>
+              </div>
             </div>
             <div class="device-row-header-right">
-              <span class="status-badge status-checking" data-role="state-badge">
-                <span class="status-dot"></span>
-              </span>
+              <button class="power-switch" role="switch" aria-checked="false" aria-label="Power ${bulb.label}" data-action="toggle-power" data-device="${bulb.deviceName}" disabled></button>
               <i class="mdi mdi-chevron-down accordion-chevron"></i>
             </div>
           </summary>
           <div class="device-row-body">
-            <div class="action-tile-grid action-tile-grid-4">
-              <button class="action-tile" data-action="power-on" data-device="${bulb.deviceName}" disabled>
-                <i class="mdi mdi-lightbulb-on"></i>
-                <span>On</span>
-              </button>
-              <button class="action-tile" data-action="power-off" data-device="${bulb.deviceName}" disabled>
-                <i class="mdi mdi-lightbulb-off"></i>
-                <span>Off</span>
-              </button>
-              <button class="action-tile" data-action="adjust" data-device="${bulb.deviceName}" title="Color & Brightness" disabled>
-                <i class="mdi mdi-palette"></i>
-                <span>Color</span>
-              </button>
-              <button class="action-tile" data-action="details" data-device="${bulb.deviceName}">
-                <i class="mdi mdi-information-outline"></i>
-                <span>Info</span>
-              </button>
-              <button class="action-tile" data-action="save-preset" data-device="${bulb.deviceName}" title="Save Preset" disabled>
-                <i class="mdi mdi-content-save-outline"></i>
-                <span>Save</span>
-              </button>
-              <button class="action-tile" data-action="apply-preset" data-device="${bulb.deviceName}" title="Apply Preset">
-                <i class="mdi mdi-bookmark-check"></i>
-                <span>Apply</span>
-              </button>
-              <button class="action-tile" data-action="effects" data-device="${bulb.deviceName}" disabled>
-                <i class="mdi mdi-creation"></i>
-                <span>Effects</span>
-              </button>
-              <button class="action-tile" data-action="reset-default" data-device="${bulb.deviceName}" disabled>
-                <i class="mdi mdi-backup-restore"></i>
-                <span>Reset</span>
-              </button>
+            <div class="bulb-controls">
+              <div class="segment-row">
+                <button class="segment-btn" data-action="adjust" data-device="${bulb.deviceName}" disabled>
+                  <i class="mdi mdi-palette"></i><span>Color</span>
+                </button>
+                <button class="segment-btn" data-action="effects" data-device="${bulb.deviceName}" disabled>
+                  <i class="mdi mdi-creation"></i><span>Effects</span>
+                </button>
+                <button class="segment-btn" data-action="apply-preset" data-device="${bulb.deviceName}">
+                  <i class="mdi mdi-bookmark-check"></i><span>Presets</span>
+                </button>
+              </div>
+              <div class="icon-row">
+                <button class="icon-row-btn" data-action="fade" data-device="${bulb.deviceName}">
+                  <i class="mdi mdi-timer-outline"></i><span>Fade</span>
+                </button>
+                <button class="icon-row-btn" data-action="details" data-device="${bulb.deviceName}">
+                  <i class="mdi mdi-information-outline"></i><span>Info</span>
+                </button>
+                <button class="icon-row-btn" data-action="save-preset" data-device="${bulb.deviceName}" disabled>
+                  <i class="mdi mdi-content-save-outline"></i><span>Save</span>
+                </button>
+                <button class="icon-row-btn" data-action="reset-default" data-device="${bulb.deviceName}" disabled>
+                  <i class="mdi mdi-backup-restore"></i><span>Reset</span>
+                </button>
+              </div>
             </div>
           </div>
         </details>
@@ -198,14 +215,19 @@ export class BulbsPage {
         this.openLightControlModal(deviceName, "effect");
       } else if (action === "reset-default") {
         this.handleResetToDefault(deviceName, btn);
-      } else if (action === "power-on") {
-        this.handlePowerButtonClick(deviceName, true, btn);
-      } else if (action === "power-off") {
-        this.handlePowerButtonClick(deviceName, false, btn);
+      } else if (action === "toggle-power") {
+        // Inside <summary>: stop the click from also expanding the accordion.
+        e.preventDefault();
+        e.stopPropagation();
+        this.handlePowerSwitchClick(deviceName, btn);
+      } else if (action === "fade") {
+        this.openFadeModal(deviceName);
       }
     });
 
+
     this.setupSelectionBar();
+    this.setupFadeModal();
     this.setupPresetNameModal();
     this.setupPresetPickerModal();
     this.setupBulbDetailsModal();
@@ -219,7 +241,14 @@ export class BulbsPage {
     const adjustBtn = this.container.querySelector("#selection-adjust-btn");
     const presetBtn = this.container.querySelector("#selection-preset-btn");
     const effectBtn = this.container.querySelector("#selection-effect-btn");
+    const fadeBtn = this.container.querySelector("#selection-fade-btn");
+    const clearBtn = this.container.querySelector("#selection-clear-btn");
 
+    clearBtn.addEventListener("click", () => this.clearSelection());
+    fadeBtn.addEventListener("click", () => {
+      if (this.selectedDevices.size === 0) return;
+      this.openFadeModal(Array.from(this.selectedDevices));
+    });
     onBtn.addEventListener("click", () => this.handleGroupPower(true));
     offBtn.addEventListener("click", () => this.handleGroupPower(false));
     adjustBtn.addEventListener("click", () => {
@@ -260,6 +289,15 @@ export class BulbsPage {
     this.updateSelectionBar();
   }
 
+  clearSelection() {
+    this.selectedDevices.clear();
+    this.container.querySelectorAll(".select-check-btn").forEach((btn) => {
+      btn.classList.remove("selected");
+      btn.querySelector("i").className = "mdi mdi-checkbox-blank-circle-outline";
+    });
+    this.updateSelectionBar();
+  }
+
   toggleDeviceSelection(deviceName, btn) {
     const icon = btn.querySelector("i");
     if (this.selectedDevices.has(deviceName)) {
@@ -275,15 +313,13 @@ export class BulbsPage {
   }
 
   updateSelectionBar() {
-    const bar = this.container.querySelector("#bulbs-selection-bar");
+    const dock = this.container.querySelector("#bulbs-selection-dock");
     const count = this.selectedDevices.size;
 
-    bar.classList.toggle("hidden", count === 0);
-    this.container.querySelector("#selection-power-on-btn").disabled = count === 0;
-    this.container.querySelector("#selection-power-off-btn").disabled = count === 0;
-    this.container.querySelector("#selection-adjust-btn").disabled = count === 0;
-    this.container.querySelector("#selection-preset-btn").disabled = count === 0;
-    this.container.querySelector("#selection-effect-btn").disabled = count === 0;
+    dock.classList.toggle("visible", count > 0);
+    // Leaves room under the list so the dock never covers the last bulb.
+    this.container.querySelector("#bulbs-main-content").classList.toggle("has-dock", count > 0);
+    if (count > 0) this.container.querySelector("#selection-count").textContent = count;
 
     const selectAllBtn = this.container.querySelector("#bulbs-select-all-btn");
     const allSelected = count > 0 && count === KNOWN_BULBS.length;
@@ -337,20 +373,56 @@ export class BulbsPage {
     list.addEventListener("click", (e) => {
       const iconBtn = e.target.closest("button[data-action]");
       if (iconBtn) {
+        const action = iconBtn.getAttribute("data-action");
+        if (action === "toggle-actions") {
+          this.togglePresetActions(iconBtn.closest(".preset-item"));
+          return;
+        }
         const id = iconBtn.getAttribute("data-id");
-        if (iconBtn.getAttribute("data-action") === "set-default") {
+        if (action === "set-default") {
           this.handleSetDefault(id, iconBtn);
-        } else if (iconBtn.getAttribute("data-action") === "delete-preset") {
+        } else if (action === "delete-preset") {
           this.openConfirmDeleteModal(id);
         }
         return;
       }
 
-      const row = e.target.closest(".preset-row[data-id]");
-      if (row && this.pendingApplyDevices.length > 0) {
-        this.handleApplyPreset(row.getAttribute("data-id"));
+      const target = e.target.closest("[data-preset-id]");
+      if (!target) return;
+      // A row that's showing its actions just closes them instead of applying.
+      const item = target.closest(".preset-item");
+      if (item && item.classList.contains("open")) {
+        item.classList.remove("open");
+        return;
+      }
+      if (this.pendingApplyDevices.length > 0) {
+        this.handleApplyPreset(target.getAttribute("data-preset-id"));
       }
     });
+
+    // Swipe a row left to reveal Default / Delete, right to hide them again.
+    let swipeStart = null;
+    list.addEventListener("touchstart", (e) => {
+      const item = e.target.closest(".preset-item");
+      swipeStart = item ? { item, x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+    }, { passive: true });
+    list.addEventListener("touchend", (e) => {
+      if (!swipeStart) return;
+      const dx = e.changedTouches[0].clientX - swipeStart.x;
+      const dy = e.changedTouches[0].clientY - swipeStart.y;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        this.togglePresetActions(swipeStart.item, dx < 0);
+      }
+      swipeStart = null;
+    }, { passive: true });
+  }
+
+  // Only one row shows its actions at a time.
+  togglePresetActions(item, forceOpen) {
+    if (!item) return;
+    const open = forceOpen === undefined ? !item.classList.contains("open") : forceOpen;
+    this.container.querySelectorAll(".preset-item.open").forEach((i) => i.classList.remove("open"));
+    item.classList.toggle("open", open);
   }
 
   setupBulbDetailsModal() {
@@ -679,7 +751,7 @@ export class BulbsPage {
   handleBrightnessChange(devices, percent) {
     const activeEffect = this.activeEffectFor(devices[0]);
     if (activeEffect) {
-      return this.applyLightSettings(devices, this.buildEffectPayload(devices[0], activeEffect, this.currentEffectSpeed()));
+      return this.applyLightSettings(devices, this.buildEffectPayload(devices[0], activeEffect, this.currentEffectSpeed(), percent));
     }
     // Send the raw ZCL level (0-254) rather than "brightness_percent" — that
     // convenience key isn't guaranteed to be wired up by every Zigbee2MQTT device
@@ -711,11 +783,18 @@ export class BulbsPage {
   // a bare {"effect":"breathing"} is known to silently no-op on some units
   // (confirmed against Zigbee2MQTT directly, not just this app). So every effect
   // change always sends the full bundle, never just the effect key alone.
-  buildEffectPayload(deviceName, effect, speed) {
+  buildEffectPayload(deviceName, effect, speed, brightnessPercent) {
     const realEffect = effect === "rainbow" ? "fading" : effect;
     const colors = effect === "rainbow" ? RAINBOW_COLORS : this.effectColorsFor(deviceName, effect);
-    const brightnessSlider = this.container.querySelector('[data-role="brightness-slider"]');
-    const brightness = Math.round((Number(brightnessSlider.value) / 100) * 254);
+    // Brightness can now be changed from a row slider as well as the modal one,
+    // so an explicit value wins, then the bulb's live level, then the modal slider.
+    const liveBrightness = (this.lightStates[deviceName] || {}).brightness;
+    const brightness =
+      typeof brightnessPercent === "number"
+        ? Math.round((brightnessPercent / 100) * 254)
+        : typeof liveBrightness === "number"
+          ? liveBrightness
+          : Math.round((Number(this.container.querySelector('[data-role="brightness-slider"]').value) / 100) * 254);
 
     return {
       state: "ON",
@@ -941,34 +1020,43 @@ export class BulbsPage {
     const row = this.container.querySelector(`.device-row[data-device="${deviceName}"]`);
     if (!row) return;
 
-    const badge = row.querySelector('[data-role="state-badge"]');
-    const powerOnBtn = row.querySelector('button[data-action="power-on"]');
-    const powerOffBtn = row.querySelector('button[data-action="power-off"]');
+    const summary = row.querySelector('[data-role="summary"]');
+    const powerSwitch = row.querySelector('button[data-action="toggle-power"]');
     const saveBtn = row.querySelector('button[data-action="save-preset"]');
-    const adjustBtn = row.querySelector('button[data-action="adjust"]');
     const effectsBtn = row.querySelector('button[data-action="effects"]');
     const resetBtn = row.querySelector('button[data-action="reset-default"]');
     const bulbIcon = row.querySelector(".bulb-icon i");
 
     const hasData = state && Object.keys(state).length > 0;
     const hasDefaultPreset = this.presets.some((p) => p.default);
+    powerSwitch.disabled = !hasData;
     saveBtn.disabled = !hasData;
-    powerOnBtn.disabled = !hasData;
-    powerOffBtn.disabled = !hasData;
-    adjustBtn.disabled = !hasData;
     effectsBtn.disabled = !hasData;
+    row.querySelector('button[data-action="adjust"]').disabled = !hasData;
     resetBtn.disabled = !hasData || !hasDefaultPreset;
 
     if (!hasData) {
-      badge.className = "status-badge status-checking";
-      badge.innerHTML = '<span class="status-dot"></span><span>No Data</span>';
+      summary.textContent = "No data";
+      powerSwitch.setAttribute("aria-checked", "false");
       this.setBulbIconColor(deviceName, bulbIcon, null);
       return;
     }
 
     const isOn = state.state === "ON";
-    badge.className = isOn ? "status-badge status-online" : "status-badge status-offline";
-    badge.innerHTML = `<span class="status-dot"></span><span>${state.state || "Unknown"}</span>`;
+    powerSwitch.setAttribute("aria-checked", String(isOn));
+
+    const percent = typeof state.brightness === "number" ? Math.round((state.brightness / 254) * 100) : null;
+
+    const parts = [isOn ? "On" : "Off"];
+    if (isOn && percent !== null) parts.push(`${percent}%`);
+    if (isOn && state.effect && state.effect !== "off") {
+      parts.push(state.effect);
+    } else if (isOn && state.color_mode === "color_temp" && typeof state.color_temp === "number") {
+      parts.push(`${Math.round(1000000 / state.color_temp)}K`);
+    } else if (isOn && state.color) {
+      parts.push("Color");
+    }
+    summary.textContent = parts.join(" · ");
 
     this.setBulbIconColor(deviceName, bulbIcon, isOn ? this.computeBulbColor(state) : null);
   }
@@ -1071,17 +1159,82 @@ export class BulbsPage {
     }
   }
 
-  async handlePowerButtonClick(deviceName, turnOn, btn) {
+  async handlePowerSwitchClick(deviceName, btn) {
+    const turnOn = btn.getAttribute("aria-checked") !== "true";
     btn.disabled = true;
+    btn.setAttribute("aria-checked", String(turnOn));
 
     try {
       await this.runWithTokenRetry(() => this.apiService.setLightPower(this.authService.getAccessToken(), deviceName, turnOn));
-      this.showMessage("success", `${this.getBulbLabel(deviceName)} turned ${turnOn ? "ON" : "OFF"}`);
-      setTimeout(() => this.loadLightStates(), 1000);
+      // The bulb needs its fade time to finish before its reported state settles.
+      setTimeout(() => this.loadLightStates(), 1000 + this.fadeFor(deviceName) * 1000);
     } catch (error) {
+      btn.setAttribute("aria-checked", String(!turnOn));
       this.showMessage("error", error.message);
     } finally {
       btn.disabled = false;
+    }
+  }
+
+  setupFadeModal() {
+    const overlay = this.container.querySelector("#fade-overlay");
+    const closeBtn = this.container.querySelector("#fade-close-btn");
+    const chips = this.container.querySelector("#fade-chips");
+    const slider = this.container.querySelector("#fade-slider");
+
+    closeBtn.addEventListener("click", () => this.closeFadeModal());
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) this.closeFadeModal();
+    });
+
+    chips.addEventListener("click", (e) => {
+      const chip = e.target.closest(".fade-chip");
+      if (!chip) return;
+      slider.value = chip.getAttribute("data-seconds");
+      this.updateFadeModalUi();
+      this.commitFade(Number(slider.value));
+    });
+    slider.addEventListener("input", () => this.updateFadeModalUi());
+    slider.addEventListener("change", () => this.commitFade(Number(slider.value)));
+  }
+
+  openFadeModal(deviceNameOrNames) {
+    const devices = Array.isArray(deviceNameOrNames) ? deviceNameOrNames : [deviceNameOrNames];
+    this.pendingFadeDevices = devices;
+    this.container.querySelector("#fade-title").textContent =
+      devices.length === 1 ? `${this.getBulbLabel(devices[0])} fade` : `${devices.length} Lights fade`;
+    // Like the color modal, the first device's value is just the starting point.
+    this.container.querySelector("#fade-slider").value = this.fadeFor(devices[0]);
+    this.updateFadeModalUi();
+    this.container.querySelector("#fade-overlay").classList.add("visible");
+  }
+
+  closeFadeModal() {
+    this.pendingFadeDevices = [];
+    this.container.querySelector("#fade-overlay").classList.remove("visible");
+  }
+
+  updateFadeModalUi() {
+    const seconds = Number(this.container.querySelector("#fade-slider").value);
+    this.container.querySelector("#fade-value").textContent = this.formatFade(seconds);
+    this.container.querySelectorAll(".fade-chip").forEach((chip) => {
+      chip.classList.toggle("active", Number(chip.getAttribute("data-seconds")) === seconds);
+    });
+  }
+
+  async commitFade(seconds) {
+    const devices = this.pendingFadeDevices;
+    const previous = devices.map((d) => this.fades[d]);
+    devices.forEach((d) => { this.fades[d] = seconds; });
+
+    try {
+      await this.runWithTokenRetry(() =>
+        Promise.all(devices.map((d) => this.apiService.setLightFade(this.authService.getAccessToken(), d, seconds))),
+      );
+    } catch (error) {
+      devices.forEach((d, i) => { this.fades[d] = previous[i]; });
+      this.updateFadeModalUi();
+      this.showMessage("error", error.message);
     }
   }
 
@@ -1169,30 +1322,86 @@ export class BulbsPage {
     emptyState.classList.add("hidden");
 
     const applyable = this.pendingApplyDevices.length > 0;
+    const defaultPreset = this.presets.find((p) => p.default);
+    const others = this.presets.filter((p) => !p.default);
 
-    list.innerHTML = this.presets
-      .map((preset) => {
-        const isDefault = !!preset.default;
-        return `
-          <div class="preset-row ${applyable ? "preset-row-selectable" : ""}" data-id="${preset.id}">
-            <div class="preset-row-main">
-              <div class="preset-icon"><i class="mdi mdi-bookmark"></i></div>
-              <div class="preset-row-name">${preset.name}</div>
+    const defaultCard = defaultPreset
+      ? `
+        <button class="preset-default-card" data-preset-id="${defaultPreset.id}">
+          ${this.presetSwatchHtml(defaultPreset.settings)}
+          <span class="preset-default-card-text">
+            <b>${this.escapeHtml(defaultPreset.name)}</b>
+            <span>${this.presetSummary(defaultPreset.settings)} · used by Reset and when an effect is turned off</span>
+          </span>
+          <span class="preset-default-pill">Default</span>
+        </button>`
+      : `
+        <div class="preset-default-card empty">No default preset yet. Open a preset's dots and choose Default.</div>`;
+
+    const rows = others
+      .map(
+        (preset) => `
+          <div class="preset-item ${applyable ? "applyable" : ""}">
+            <div class="preset-actions">
+              <button class="action-default" data-action="set-default" data-id="${preset.id}"><i class="mdi mdi-star-outline"></i><span>Default</span></button>
+              <button class="action-delete" data-action="delete-preset" data-id="${preset.id}"><i class="mdi mdi-trash-can-outline"></i><span>Delete</span></button>
             </div>
-            <div class="preset-row-actions">
-              ${
-                isDefault
-                  ? '<span class="default-badge" title="Default"><i class="mdi mdi-star"></i></span>'
-                  : `<button class="icon-btn" data-action="set-default" data-id="${preset.id}" title="Set as default"><i class="mdi mdi-star-outline"></i></button>`
-              }
-              <button class="icon-btn danger" data-action="delete-preset" data-id="${preset.id}" title="Delete preset">
-                <i class="mdi mdi-trash-can-outline"></i>
-              </button>
+            <div class="preset-front" data-preset-id="${preset.id}">
+              ${this.presetSwatchHtml(preset.settings)}
+              <div class="preset-front-text">
+                <b>${this.escapeHtml(preset.name)}</b>
+                <span class="preset-meta">${this.presetSummary(preset.settings)}</span>
+              </div>
+              <button class="preset-more" data-action="toggle-actions" title="More" aria-label="More"><i class="mdi mdi-dots-vertical"></i></button>
             </div>
-          </div>
-        `;
-      })
+          </div>`,
+      )
       .join("");
+
+    list.innerHTML = `${defaultCard}${rows ? `<div class="preset-list">${rows}</div>` : ""}`;
+  }
+
+  escapeHtml(text) {
+    const el = document.createElement("div");
+    el.textContent = text;
+    return el.innerHTML;
+  }
+
+  // What a preset will look like, decided from its saved settings: either a
+  // temperature or a color (a bulb saves both, so whichever is closer to the
+  // other's hue is a white), plus its effect if one is set.
+  presetLook(settings) {
+    const s = settings || {};
+    const effect = s.effect && s.effect !== "off" ? s.effect : null;
+    const colorHex = s.color ? this.deriveColorHex({ color: s.color }) : null;
+    const kelvin = typeof s.color_temp === "number" ? Math.round(1000000 / s.color_temp) : null;
+    const tempHex = kelvin ? this.kelvinToHex(kelvin) : null;
+
+    let isTemp = !!tempHex && !colorHex;
+    if (tempHex && colorHex) {
+      const [r1, g1, b1] = this.hexToRgb(tempHex);
+      const [r2, g2, b2] = this.hexToRgb(colorHex);
+      isTemp = Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2) < 150;
+    }
+    return { effect, hex: isTemp ? tempHex : colorHex, kelvin: isTemp ? kelvin : null };
+  }
+
+  presetSwatchHtml(settings) {
+    const { effect, hex } = this.presetLook(settings);
+    if (effect === "candlelight") return '<span class="preset-swatch candle"></span>';
+    if (effect === "fading" || (effect && !hex)) return '<span class="preset-swatch fx"></span>';
+    return `<span class="preset-swatch" style="background:${hex || "var(--bg-input)"}"></span>`;
+  }
+
+  presetSummary(settings) {
+    const s = settings || {};
+    const { effect, hex, kelvin } = this.presetLook(s);
+    const parts = [];
+    if (typeof s.brightness === "number") parts.push(`${Math.round((s.brightness / 254) * 100)}%`);
+    if (effect) parts.push(`${effect.charAt(0).toUpperCase()}${effect.slice(1)} effect`);
+    else if (kelvin) parts.push(`${kelvin}K`);
+    else if (hex) parts.push("Color");
+    return parts.join(" · ") || "Saved settings";
   }
 
   async handleApplyPreset(presetId) {
@@ -1206,7 +1415,10 @@ export class BulbsPage {
       this.closePresetPicker();
       const target = devices.length === 1 ? this.getBulbLabel(devices[0]) : `${devices.length} lights`;
       this.showMessage("success", `Preset applied to ${target}`);
+      // A bulb that was off is switched back off a moment after the preset lands, and
+      // its reports lag behind — read again once they've settled.
       setTimeout(() => this.loadLightStates(), 1200);
+      setTimeout(() => this.loadLightStates(), 3000);
     } catch (error) {
       this.showMessage("error", error.message);
     }
